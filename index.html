@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#11110f" />
+  <link rel="icon" href="data:," />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <title>Simulador Prueba Diaria — La Forja</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f4f5f4; --surface: #fff; --surface-2: #eaedea; --ink: #171815; --muted: #555951;
+      --line: #c8ccc5; --strong-line: #171815; --ember: #e95517; --ember-deep: #bb3810;
+      --ember-soft: #ffe3d6; --ok: #23764b; --ok-soft: #dff3e8; --danger: #b72b25;
+      --danger-soft: #fde6e4; --shadow: 0 16px 44px rgba(20,22,18,.09);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:#0d0e0c; --surface:#151613; --surface-2:#20221e; --ink:#f5f4ef; --muted:#afb3aa;
+        --line:#383b35; --strong-line:#ecebe6; --ember:#ff6a28; --ember-deep:#ff8b55;
+        --ember-soft:#3b1c10; --ok:#69c994; --ok-soft:#143324; --danger:#ff8c86;
+        --danger-soft:#3b1817; --shadow:0 18px 54px rgba(0,0,0,.35);
+      }
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;min-width:320px;background:linear-gradient(90deg,transparent 0 49.85%,color-mix(in srgb,var(--line) 23%,transparent) 49.85% 50.15%,transparent 50.15%) 0 0/64px 64px,var(--bg);color:var(--ink);font:500 16px/1.48 "Source Sans 3",sans-serif}
+    button,input,select,textarea{font:inherit} button,select{min-height:46px} button{cursor:pointer}
+    button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid color-mix(in srgb,var(--ember) 62%,transparent);outline-offset:2px}
+    .page{width:min(1160px,calc(100% - 32px));margin:0 auto;padding:26px 0 max(64px,env(safe-area-inset-bottom))}
+    h1,h2,h3,.timer-value,.step-number,.proof-no{font-family:"Oswald",sans-serif;text-transform:uppercase}
+    .library-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,360px);gap:28px;align-items:end;border-bottom:2px solid var(--strong-line);padding:0 0 20px}
+    .eyebrow{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.78rem;font-weight:700;letter-spacing:.11em;text-transform:uppercase}
+    .eyebrow:before{content:"";width:36px;height:5px;background:var(--ember)}
+    h1{margin:8px 0 7px;font-size:clamp(2.45rem,7vw,5.15rem);line-height:.94;letter-spacing:-.035em;text-wrap:balance}
+    .head-copy{margin:0;max-width:680px;color:var(--muted);font-size:1.03rem}
+    .selector-block label{display:block;margin-bottom:7px;color:var(--muted);font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    .selector-block select{width:100%;border:1px solid var(--strong-line);border-radius:0;background:var(--surface);color:var(--ink);padding:11px 42px 11px 13px;font-weight:800}
+    .selector-nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+    .btn{border:1px solid var(--strong-line);border-radius:0;padding:11px 16px;background:var(--surface);color:var(--ink);font-weight:800;letter-spacing:.02em}
+    .btn-primary{border-color:var(--ember);background:var(--ember);color:#fff}.btn-primary:hover{background:var(--ember-deep)}
+    .btn:disabled{cursor:not-allowed;opacity:.46}.btn-quiet{border-color:var(--line);color:var(--muted)}
+    .proof-strip{display:flex;align-items:center;gap:14px;margin-top:22px;padding:14px 0;border-bottom:1px solid var(--line)}
+    .proof-no{display:grid;place-items:center;flex:0 0 58px;height:58px;background:var(--ember);color:#fff;font-size:1.65rem}
+    .proof-meta{min-width:0}.proof-meta b{display:block;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase}.proof-meta span{display:block;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .status{margin-left:auto;border:1px solid var(--line);padding:7px 10px;color:var(--muted);font-size:.74rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}
+    .case-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,.55fr);gap:22px;margin-top:22px}
+    .case-copy,.timer-panel,.step,.result-panel{background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+    .case-copy{padding:clamp(22px,4vw,40px)}.case-copy h2{margin:0 0 15px;font-size:clamp(1.45rem,3vw,2.2rem);line-height:1.08;letter-spacing:-.01em}
+    .case-copy p{margin:0;color:var(--muted);font-size:clamp(1rem,2vw,1.12rem)}
+    .instruction{margin-top:21px!important;padding:14px 16px;border-left:5px solid var(--ember);background:var(--ember-soft);color:var(--ink)!important;font-weight:700}
+    .draft-note{display:none;margin-top:12px!important;padding:12px 14px;border:1px solid var(--danger);background:var(--danger-soft);color:var(--danger)!important;font-weight:800}.draft-note.visible{display:block}.status.draft{border-color:var(--danger);background:var(--danger-soft);color:var(--danger)}
+    .timer-panel{display:flex;flex-direction:column;justify-content:space-between;padding:24px;border-top:6px solid var(--ember)}
+    .timer-label{color:var(--muted);font-size:.78rem;font-weight:700;letter-spacing:.11em;text-transform:uppercase}
+    .timer-value{margin:8px 0 2px;font-size:clamp(4.2rem,9vw,6rem);line-height:.95;letter-spacing:-.06em;font-variant-numeric:tabular-nums}
+    .timer-note{min-height:24px;color:var(--muted);font-size:.9rem}.timer-progress{height:8px;margin:20px 0;background:var(--surface-2);overflow:hidden}
+    .timer-progress i{display:block;width:100%;height:100%;background:var(--ember);transform-origin:left center;transition:transform .25s linear}.action-row{display:flex;gap:10px;flex-wrap:wrap}.action-row .btn-primary{flex:1}
+    .form-wrap{margin-top:22px}.locked-banner{display:none;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px;padding:13px 16px;border:1px solid var(--danger);background:var(--danger-soft);color:var(--danger);font-weight:800}.locked-banner.visible{display:flex}
+    .step{display:grid;grid-template-columns:92px minmax(0,1fr);margin-top:14px;box-shadow:none}.step-rail{padding:23px 18px;border-right:1px solid var(--line);background:var(--surface-2);text-align:center}.step-number{color:var(--ember);font-size:2.25rem;line-height:1}
+    .check-dot{display:grid;place-items:center;width:28px;height:28px;margin:18px auto 0;border:2px solid var(--line);border-radius:50%;color:transparent;font-size:.8rem;font-weight:900;transition:.2s ease}.step.complete .check-dot{border-color:var(--ok);background:var(--ok);color:#fff}
+    .step-body{padding:clamp(20px,4vw,32px)}.step-title-row{display:flex;justify-content:space-between;gap:12px;align-items:baseline}.step h3{margin:0;font-size:clamp(1.35rem,3vw,1.85rem);letter-spacing:.01em}.requirement{color:var(--muted);font-size:.8rem;font-weight:700;text-align:right}.hint{margin:5px 0 18px;color:var(--muted)}
+    textarea,select.line-input{width:100%;border:1px solid var(--line);border-radius:0;background:var(--bg);color:var(--ink);padding:12px 13px}textarea{min-height:96px;resize:vertical}textarea::placeholder{color:color-mix(in srgb,var(--muted) 65%,transparent)}textarea:disabled,select:disabled{opacity:.64;cursor:not-allowed}
+    .submit-bar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:20px 0 0;padding:18px;border:1px solid var(--strong-line);background:var(--surface)}.completion{color:var(--muted)}.completion b{color:var(--ink)}.submit-bar .btn{min-width:190px}
+    .result-panel{display:none;margin-top:24px;border-top:7px solid var(--ember);padding:clamp(22px,4vw,38px)}.result-panel.visible{display:block}.result-head{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:start}.result-panel h2{margin:0;font-size:clamp(1.7rem,4vw,2.6rem)}.result-panel p{margin:8px 0 0;color:var(--muted)}
+    .score{min-width:92px;border:1px solid var(--line);background:var(--surface-2);padding:10px 13px;text-align:center;font-family:"Oswald",sans-serif;font-size:1.55rem;font-variant-numeric:tabular-nums}.check-list{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0}.check-item{padding:14px;border:1px solid var(--line);background:var(--surface-2)}.check-item strong{display:block}.check-item span{display:block;margin-top:4px;color:var(--muted);font-size:.85rem}.check-item.pass strong{color:var(--ok)}.check-item.fail strong{color:var(--danger)}
+    .boundary{margin-top:18px;padding:14px 16px;border-left:5px solid var(--ember);background:var(--ember-soft);color:var(--ink);font-weight:700}.result-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.copy-status{align-self:center;min-height:22px;color:var(--ok);font-size:.9rem;font-weight:700}
+    .ai-eval{margin-top:30px;padding-top:26px;border-top:2px solid var(--strong-line)}.ai-kicker{margin:0 0 5px;color:var(--ember);font-size:.78rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase}.ai-eval h3{margin:0;font-size:clamp(1.55rem,3vw,2.1rem);line-height:1.05}.ai-eval>p{max-width:720px;margin:9px 0 18px;color:var(--muted)}.auto-eval{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px 12px;align-items:end;margin:18px 0 24px;padding:18px;border:1px solid var(--strong-line);background:var(--surface-2)}.auto-eval label{grid-column:1/-1;color:var(--ink);font-size:.88rem;font-weight:800}.auto-eval input{width:100%;min-height:48px;border:1px solid var(--strong-line);border-radius:0;background:var(--surface);color:var(--ink);padding:11px 13px}.auto-eval .btn{min-width:245px}.auto-eval-note{grid-column:1/-1;margin:2px 0 0;color:var(--muted);font-size:.9rem}.manual-eval-label{margin:0 0 8px;color:var(--muted);font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.ai-flow{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:0 0 18px;border:1px solid var(--line);background:var(--line)}.ai-flow div{padding:13px 14px;background:var(--surface-2)}.ai-flow b{display:block;color:var(--ember);font-family:"Oswald",sans-serif;font-size:1.2rem}.ai-flow span{display:block;margin-top:2px;color:var(--muted);font-size:.86rem}.ai-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.ai-actions .btn{min-width:220px}.ai-status{min-height:22px;color:var(--ok);font-size:.9rem;font-weight:700}
+    .closing{margin:32px auto 0;max-width:800px;text-align:center;font-family:"Oswald",sans-serif;font-size:clamp(1.25rem,3vw,1.75rem);line-height:1.3;text-transform:uppercase}.closing em{color:var(--ember);font-style:normal}.noscript{margin:20px;padding:16px;border:1px solid var(--danger);background:var(--danger-soft);color:var(--danger)}
+    .mode-section[hidden]{display:none!important}.mode-home{padding-top:clamp(26px,7vw,72px)}.mode-intro{max-width:760px;border-bottom:2px solid var(--strong-line);padding-bottom:22px}.mode-intro h1{margin-top:10px}.mode-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:24px}.mode-card{display:flex;min-height:230px;flex-direction:column;align-items:flex-start;border:1px solid var(--line);border-top:6px solid var(--ember);background:var(--surface);padding:clamp(22px,4vw,34px);box-shadow:var(--shadow);text-align:left}.mode-card h2{margin:7px 0 8px;font-size:clamp(1.65rem,3.5vw,2.45rem);line-height:1}.mode-card p{margin:0 0 22px;color:var(--muted)}.mode-card .btn{margin-top:auto}.mode-card.disabled{border-top-color:var(--line);box-shadow:none}.mode-card.disabled .mode-tag{color:var(--muted)}.mode-tag{color:var(--ember);font-size:.76rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase}.mode-back{margin:0 0 18px}.verdict-submit{margin-top:26px;padding-top:24px;border-top:1px solid var(--line)}.verdict-submit h3{margin:0;font-size:clamp(1.4rem,3vw,1.85rem)}.verdict-submit>p{margin:7px 0 15px;color:var(--muted)}.verdict-options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.verdict-btn[aria-pressed="true"]{border-color:var(--ember);background:var(--ember-soft);color:var(--ember-deep)}.send-verdict{margin-top:12px;width:100%}.verdict-status{min-height:22px;margin:8px 0 0;color:var(--muted);font-size:.9rem;font-weight:700}
+    .day-control{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}.day-control label{grid-column:1/-1;display:block;color:var(--muted);font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.day-control input{min-width:0;min-height:46px;border:1px solid var(--strong-line);border-radius:0;background:var(--surface);color:var(--ink);padding:10px 12px;font:800 1rem "Source Sans 3",sans-serif}.daily-unavailable{margin-top:22px;padding:20px;border:1px solid var(--line);border-left:6px solid var(--line);background:var(--surface);color:var(--muted)}.daily-unavailable strong{display:block;margin-bottom:5px;color:var(--ink);font-family:"Oswald",sans-serif;font-size:1.35rem;text-transform:uppercase}.daily-checks{display:grid;gap:10px;margin:20px 0}.daily-check{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;border:1px solid var(--line);background:var(--surface-2);padding:14px}.daily-check input{width:22px;height:22px;margin:1px 0;accent-color:var(--ok)}.daily-check span{color:var(--ink)}.daily-feedback{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}.daily-feedback label{display:block;color:var(--muted);font-size:.78rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.daily-feedback textarea{margin-top:6px;min-height:110px}.daily-verdict{display:inline-block;margin-top:5px;padding:8px 12px;background:var(--surface-2);border:1px solid var(--line);font-family:"Oswald",sans-serif;font-size:1.35rem;text-transform:uppercase}.daily-verdict.approved{color:var(--ok);border-color:var(--ok)}.daily-verdict.middle{color:var(--ember-deep);border-color:var(--ember)}.daily-verdict.failed{color:var(--danger);border-color:var(--danger)}
+
+    @media(max-width:820px){.library-head,.case-grid{grid-template-columns:1fr}.selector-block{max-width:none}.timer-panel{min-height:285px}.check-list,.daily-feedback{grid-template-columns:1fr}.ai-flow{grid-template-columns:1fr}.auto-eval{grid-template-columns:1fr}.auto-eval .btn{width:100%;min-width:0}}
+    @media(max-width:620px){.page{width:min(100% - 22px,1160px);padding-top:16px}.library-head{gap:20px}h1{font-size:clamp(2.7rem,15vw,4.4rem)}.mode-grid,.verdict-options{grid-template-columns:1fr}.mode-card{min-height:210px}.proof-strip{align-items:flex-start;flex-wrap:wrap}.status{display:none}.status.draft{display:block;margin-left:72px}.step{grid-template-columns:54px minmax(0,1fr)}.step-rail{padding:20px 8px}.step-number{font-size:1.65rem}.check-dot{width:24px;height:24px}.step-title-row,.result-head,.submit-bar{align-items:stretch;flex-direction:column;grid-template-columns:1fr}.step-title-row{display:flex}.requirement{text-align:left}.submit-bar{display:flex}.submit-bar .btn{width:100%}.score{justify-self:start}.locked-banner{align-items:flex-start;flex-direction:column}.proof-meta span{white-space:normal}.result-actions .btn,.ai-actions .btn{width:100%}.ai-actions{align-items:stretch;flex-direction:column}.ai-status{width:100%}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
+  </style>
+</head>
+<body>
+  <noscript><div class="noscript">Este jugador necesita JavaScript para cargar las pruebas, activar el cronómetro y revisar la forma.</div></noscript>
+  <main class="page">
+    <section class="mode-section mode-home" id="modeHome" aria-labelledby="modeTitle">
+      <div class="mode-intro">
+        <div class="eyebrow">Entrenamiento operativo</div>
+        <h1 id="modeTitle">Elige tu campo de prueba</h1>
+        <p class="head-copy">Un solo lugar para ejecutar las pruebas, llevarlas a evaluación y enviar el veredicto.</p>
+      </div>
+      <div class="mode-grid">
+        <article class="mode-card">
+          <span class="mode-tag">Disponible · 14 pruebas</span>
+          <h2>Pruebas de La Forja</h2>
+          <p>Abre la biblioteca, ejecuta contra reloj y lleva tu respuesta a evaluación.</p>
+          <button class="btn btn-primary" type="button" id="openForjaBtn">Entrar a las pruebas</button>
+        </article>
+        <article class="mode-card">
+          <span class="mode-tag">Disponible · 90 días</span>
+          <h2>Evaluador Diario</h2>
+          <p>Entrena decisiones bajo presión con un escenario asignado por día, cinco minutos y veredicto binario.</p>
+          <button class="btn btn-primary" type="button" id="openDailyBtn">Entrar al evaluador</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="mode-section" id="modeForja" hidden>
+    <button class="btn btn-quiet mode-back" type="button" id="backHomeBtn">← Volver a modos</button>
+    <header class="library-head">
+      <div>
+        <div class="eyebrow">Jugador · Cohorte 1</div>
+        <h1>Biblioteca de pruebas</h1>
+        <p class="head-copy">Elige una prueba, ejecuta en cinco minutos y entrega al grupo. Cambiar de prueba reinicia la respuesta.</p>
+      </div>
+      <div class="selector-block">
+        <label for="proofSelect">Prueba activa</label>
+        <select id="proofSelect" aria-label="Seleccionar prueba"></select>
+        <div class="selector-nav">
+          <button class="btn btn-quiet" type="button" id="prevBtn">← Anterior</button>
+          <button class="btn btn-quiet" type="button" id="nextBtn">Siguiente →</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="proof-strip">
+      <div class="proof-no" id="proofNo">#1</div>
+      <div class="proof-meta"><b id="proofFormat">Lanning</b><span id="proofDate">25 sep 2026</span></div>
+      <div class="status" id="proofStatus">Publicada</div>
+    </div>
+
+    <section class="case-grid" aria-labelledby="caseTitle">
+      <article class="case-copy">
+        <h2 id="caseTitle"></h2>
+        <p id="caseText"></p>
+        <p class="instruction" id="caseInstruction"></p>
+        <p class="draft-note" id="caseWarning"></p>
+      </article>
+      <aside class="timer-panel" aria-live="polite">
+        <div>
+          <div class="timer-label">Tiempo de ejecución</div>
+          <div class="timer-value" id="timerValue">05:00</div>
+          <div class="timer-note" id="timerNote">El reloj comienza cuando tú lo ordenes.</div>
+          <div class="timer-progress" aria-hidden="true"><i id="timerBar"></i></div>
+        </div>
+        <div class="action-row">
+          <button class="btn btn-primary" id="startBtn" type="button">Iniciar prueba</button>
+          <button class="btn btn-quiet" id="resetBtn" type="button">Reiniciar</button>
+        </div>
+      </aside>
+    </section>
+
+    <section class="form-wrap" aria-label="Respuesta a la prueba">
+      <div class="locked-banner" id="lockedBanner" role="status"><span>TIEMPO. Lo que hay es lo que va.</span><span id="lockReason">Respuesta bloqueada.</span></div>
+      <div id="steps"></div>
+      <div class="submit-bar">
+        <div class="completion" id="completionText"><b>0 de 3</b> líneas con forma completa.</div>
+        <button class="btn btn-primary" type="button" id="finishBtn" disabled>Revisar forma</button>
+      </div>
+    </section>
+
+    <section class="result-panel" id="resultPanel" aria-live="polite">
+      <div class="result-head">
+        <div><h2 id="resultTitle">Chequeo de forma</h2><p id="resultMessage">La estructura está completa.</p></div>
+        <div class="score" id="score">0/3</div>
+      </div>
+      <div class="check-list" id="checkList"></div>
+      <div class="boundary">Esto revisa la <strong>FORMA</strong>, no dicta el veredicto. El contenido pasa a la evaluación estricta con IA al estándar: <strong>APROBADO / A MEDIAS / REPROBADO</strong>.</div>
+      <div class="result-actions">
+        <button class="btn btn-primary" type="button" id="copyBtn">Copiar para WhatsApp</button>
+        <button class="btn" type="button" id="editBtn">Volver a editar</button>
+        <span class="copy-status" id="copyStatus" role="status"></span>
+      </div>
+      <section class="ai-eval" aria-labelledby="aiEvalTitle">
+        <p class="ai-kicker">Evaluación con IA</p>
+        <h3 id="aiEvalTitle">Lleva tu respuesta al evaluador</h3>
+        <p>Envía tu ejecución para recibir el veredicto, el fallo y la orden para mañana.</p>
+        <div class="auto-eval">
+          <label for="studentName">Tu nombre (para el registro)</label>
+          <input id="studentName" type="text" autocomplete="name" placeholder="Anónimo" />
+          <button class="btn btn-primary" type="button" id="sendEvaluationBtn">ENVIAR PARA EVALUACIÓN</button>
+          <p class="auto-eval-note">Se abre tu evaluación calificada por IA (veredicto, fallo, consejos y orden para mañana). El veredicto le llega a richard automáticamente.</p>
+        </div>
+        <p class="manual-eval-label">Alternativa manual</p>
+        <div class="ai-flow" aria-label="Pasos para la evaluación manual">
+          <div><b>01</b><span>Copia el pack completo.</span></div>
+          <div><b>02</b><span>Pégalo en tu IA.</span></div>
+          <div><b>03</b><span>Ejecuta la orden para mañana.</span></div>
+        </div>
+        <div class="ai-actions">
+          <button class="btn" type="button" id="copyAiBtn">Copiar pack para mi IA</button>
+          <span class="ai-status" id="aiStatus" role="status"></span>
+        </div>
+        <div class="verdict-submit" aria-labelledby="verdictTitle">
+          <h3 id="verdictTitle">Registra el veredicto de tu IA</h3>
+          <p>Cuando termine la evaluación, marca el resultado y envíalo. El mensaje incluye esta prueba y tus tres primeras líneas.</p>
+          <div class="verdict-options" role="group" aria-label="Veredicto de la IA">
+            <button class="btn verdict-btn" type="button" data-verdict="APROBADO" aria-pressed="false">APROBADO</button>
+            <button class="btn verdict-btn" type="button" data-verdict="A MEDIAS" aria-pressed="false">A MEDIAS</button>
+            <button class="btn verdict-btn" type="button" data-verdict="REPROBADO" aria-pressed="false">REPROBADO</button>
+          </div>
+          <button class="btn btn-primary send-verdict" type="button" id="sendVerdictBtn" disabled>Enviar veredicto a richard</button>
+          <p class="verdict-status" id="verdictStatus" role="status">Selecciona el veredicto que te dio tu IA.</p>
+        </div>
+      </section>
+    </section>
+
+    <p class="closing" id="closing"></p>
+    </section>
+
+    <section class="mode-section" id="modeDaily" hidden>
+      <button class="btn btn-quiet mode-back" type="button" id="backDailyBtn">← Volver a modos</button>
+      <header class="library-head">
+        <div>
+          <div class="eyebrow">Programa · 90 días</div>
+          <h1>Evaluador diario</h1>
+          <p class="head-copy">El día decide el formato, el nivel y el escenario. Tienes cinco minutos: después, la respuesta se bloquea.</p>
+        </div>
+        <div class="selector-block">
+          <div class="day-control">
+            <label for="dDayInput">Día del programa</label>
+            <input id="dDayInput" type="number" inputmode="numeric" min="1" max="90" value="1" aria-label="Día del programa, del 1 al 90" />
+            <button class="btn btn-primary" type="button" id="dLoadBtn">Cargar día</button>
+          </div>
+        </div>
+      </header>
+
+      <div class="proof-strip">
+        <div class="proof-no" id="dDayNo">1</div>
+        <div class="proof-meta"><b id="dFormat">Crisis</b><span id="dLevel">Nivel 1</span></div>
+        <div class="status" id="dScenarioCode">A1</div>
+      </div>
+
+      <div class="daily-unavailable" id="dUnavailable" hidden>
+        <strong id="dUnavailableTitle">Formato pendiente</strong>
+        <span id="dUnavailableText"></span>
+      </div>
+
+      <div id="dExercise">
+        <section class="case-grid" aria-labelledby="dCaseTitle">
+          <article class="case-copy">
+            <h2 id="dCaseTitle">Escenario de crisis con presión de tiempo</h2>
+            <p id="dCaseText"></p>
+            <p class="instruction" id="dInstruction"></p>
+          </article>
+          <aside class="timer-panel" aria-live="polite">
+            <div>
+              <div class="timer-label">Tiempo de ejecución</div>
+              <div class="timer-value" id="dTimerValue">05:00</div>
+              <div class="timer-note" id="dTimerNote">El reloj comienza cuando tú lo ordenes.</div>
+              <div class="timer-progress" aria-hidden="true"><i id="dTimerBar"></i></div>
+            </div>
+            <div class="action-row">
+              <button class="btn btn-primary" id="dStartBtn" type="button">Iniciar evaluación</button>
+              <button class="btn btn-quiet" id="dResetBtn" type="button">Reiniciar</button>
+            </div>
+          </aside>
+        </section>
+
+        <section class="form-wrap" aria-label="Respuesta a la evaluación diaria">
+          <div class="locked-banner" id="dLockedBanner" role="status"><span>TIEMPO. Lo que hay es lo que va.</span><span id="dLockReason">Respuesta bloqueada.</span></div>
+          <div id="dSteps"></div>
+          <div class="submit-bar">
+            <div class="completion" id="dCompletion"><b>0 de 2</b> campos completos.</div>
+            <button class="btn btn-primary" type="button" id="dFinishBtn" disabled>Cerrar respuesta</button>
+          </div>
+        </section>
+
+        <section class="result-panel" id="dResultPanel" aria-live="polite">
+          <div class="result-head">
+            <div><h2>Veredicto por criterios</h2><p>Marca solo lo que la respuesta cumple literalmente. Sin grises.</p></div>
+            <div class="score" id="dScore">0/3</div>
+          </div>
+          <div class="daily-checks" id="dCriteria"></div>
+          <div class="daily-verdict failed" id="dSelfVerdict">REPROBADO</div>
+          <div class="daily-feedback">
+            <label>Fallo<textarea id="dFailure" placeholder="Dónde falló, citando la frase exacta."></textarea></label>
+            <label>El operador habría<textarea id="dOperator" placeholder="La acción correcta, concreta."></textarea></label>
+            <label>Orden para mañana<textarea id="dTomorrow" placeholder="Una sola acción verificable."></textarea></label>
+          </div>
+
+          <section class="ai-eval" aria-labelledby="dAiTitle">
+            <p class="ai-kicker">Evaluación con IA</p>
+            <h3 id="dAiTitle">Lleva tu ejecución al evaluador</h3>
+            <p>Envía tu ejecución para recibir el veredicto, el fallo y la orden para mañana.</p>
+            <div class="auto-eval">
+              <label for="dStudentName">Tu nombre (para el registro)</label>
+              <input id="dStudentName" type="text" autocomplete="name" placeholder="Anónimo" />
+              <button class="btn btn-primary" type="button" id="dSendEvaluationBtn">ENVIAR PARA EVALUACIÓN</button>
+              <p class="auto-eval-note">Se abre tu evaluación calificada por IA (veredicto, fallo, consejos y orden para mañana). El veredicto le llega a richard automáticamente.</p>
+            </div>
+            <p class="manual-eval-label">Alternativa manual</p>
+            <div class="ai-flow" aria-label="Pasos para la evaluación diaria manual">
+              <div><b>01</b><span>Copia el pack completo.</span></div>
+              <div><b>02</b><span>Pégalo en tu IA.</span></div>
+              <div><b>03</b><span>Registra el veredicto recibido.</span></div>
+            </div>
+            <div class="ai-actions">
+              <button class="btn" type="button" id="dCopyAiBtn">Copiar pack para mi IA</button>
+              <span class="ai-status" id="dAiStatus" role="status"></span>
+            </div>
+            <div class="verdict-submit" aria-labelledby="dVerdictTitle">
+              <h3 id="dVerdictTitle">Veredicto de tu IA</h3>
+              <p>Marca exactamente el resultado que te dio y envíalo a richard por WhatsApp.</p>
+              <div class="verdict-options" id="dVerdictOptions" role="group" aria-label="Veredicto de la IA para la evaluación diaria">
+                <button class="btn verdict-btn" type="button" data-d-verdict="APROBADO" aria-pressed="false">APROBADO</button>
+                <button class="btn verdict-btn" type="button" data-d-verdict="A MEDIAS" aria-pressed="false">A MEDIAS</button>
+                <button class="btn verdict-btn" type="button" data-d-verdict="REPROBADO" aria-pressed="false">REPROBADO</button>
+              </div>
+              <button class="btn btn-primary send-verdict" type="button" id="dSendBtn" disabled>Enviar veredicto a richard</button>
+              <p class="verdict-status" id="dVerdictStatus" role="status">Selecciona el veredicto que te dio tu IA.</p>
+            </div>
+          </section>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function(){
+      "use strict";
+      var ENEMIES=["Complacencia","Mediocridad","Ausencia de soluciones","Efecto espectador","Militante de la mediocridad"];
+      var proofs=[
+        {n:1,date:"viernes · 25 sep 2026",format:"Lanning",status:"Publicada",title:"Tienda: ventas −30%, dueño pide publicidad",caseText:"«Las ventas de una tienda de tu barrio cayeron 30% este mes. El dueño te dice: \"Necesito hacer más publicidad\".»",instruction:"Responde en 3 líneas. NO propongas soluciones. Esa es la prueba: la tentación de resolver antes de entender.",lines:[
+          ["HECHO","Un hecho del caso: verificable, está en el texto."],["SUPUESTO","Algo que no sabes pero estás dando por sentado."],["PREGUNTA","Una pregunta cuya respuesta demostraría si tu supuesto es correcto o falso."]],closing:"Un operador no empieza por «¿qué hacemos?». Empieza por «¿qué está pasando?»."},
+        {n:2,date:"sábado · 26 sep 2026",format:"El enemigo de hoy",status:"Publicada",title:"Despacho roto tres semanas",caseText:"«En una empresa, el despacho de mercancía se rompió hace tres semanas. Todos lo ven: clientes reclamando, pedidos acumulándose. Cada mañana alguien dice: \"alguien debería arreglarlo\". Nadie lo arregla.» ¿Qué enemigo está operando?",instruction:"Responde en 2 líneas. En el grupo. Sin literatura.",lines:[
+          ["ENEMIGO","Uno de los cinco enemigos.","enemy"],["EVIDENCIA","Qué parte de la escena lo demuestra. Sin inventar nada."]],closing:"Tres semanas después, nadie nombró al enemigo. Tú sí puedes."},
+        {n:3,date:"domingo · 27 sep 2026",format:"Oposición",status:"Borrador",title:"Ataca tu oferta antes que el mercado",caseText:"Esta mañana construiste tu oferta de 1 página y la viste sangrar en el ataque. La clase cerró con una orden: «NO DEFIENDAS TU OFERTA. SOMÉTELA A PRUEBA.» Saca tu página. Haz tú primero el trabajo que el mercado hará después.",instruction:"Responde en 3 líneas. En el grupo. Sin literatura.",lines:[
+          ["DEFENSA","Tu mejor defensa en una frase: por qué tu oferta merece vivir. Sin hablar de tu esfuerzo ni tus intenciones."],["ATAQUE","Tu pregunta de ataque más dura: exige evidencia, no opinión. Prohibido «yo creo que…»."],["VEREDICTO","SOBREVIVE o SE CAMBIA. Si se cambia, qué cambiarías — una línea."]],closing:"El operador ataca primero lo suyo. El mercado no avisa."},
+        {n:4,date:"lunes · 28 sep 2026",format:"Escenario operativo",status:"Publicada",title:"El cliente pregunta precio antes de decir si le importa",caseText:"«Mostraste tu oferta de 1 página. El primer mensaje del cliente es: \"¿Cuánto cuesta?\" — todavía no te ha dicho si le importa.» Responder el precio de inmediato es defender. Someterlo a prueba es otra cosa.",instruction:"Responde en 3 líneas. En el grupo. Sin literatura.",lines:[
+          ["DECISIÓN","Qué das y qué NO das todavía. Una frase."],["PRIMERA ACCIÓN","Tu primera acción antes de dar precio. Nada de «escríbeme la próxima semana»."],["FRASE EXACTA","La frase que respondes: debe someter la oferta a ¿ME IMPORTA?, ¿TE CREO? o ¿VALE LO QUE CUESTA?, no defenderla."]],closing:"El mercado pregunta el precio cuando todavía no ve el valor. Ahí se pierde o se gana."},
+        {n:5,date:"martes · 29 sep 2026",format:"Lanning",status:"Publicada",title:"«Déjame pensarlo»: separa el hecho del relato",caseText:"«Probaste tu oferta con una persona real. Su respuesta, textual: \"está interesante, déjame pensarlo\". La anotaste tal cual. Pero tu mente ya le agregó un final: \"está interesada, solo necesita tiempo\".» La misión era registrar la objeción textual: palabra por palabra, no tu interpretación.",instruction:"Responde en 3 líneas. NO propongas soluciones. NO interpretes. Separa.",lines:[
+          ["HECHO","Lo que realmente dijo, sin agregar ni quitar nada."],["SUPUESTO","Lo que ya le agregaste tú: no lo sabes, pero lo das por sentado."],["PREGUNTA","Una pregunta cuya respuesta demostraría si tu supuesto es correcto o falso, hecha a esa persona."]],closing:"El operador no interpreta lo que dijo el mercado. Lo registra y lo somete a prueba."},
+        {n:6,date:"miércoles · 30 sep 2026",format:"Oposición",status:"Publicada",title:"Defiende y ataca tu plan de seguimiento",caseText:"Probaste tu oferta con una persona real. Te respondió, textual: «déjame pensarlo». Lo anotaste palabra por palabra. Tu plan: volver a contactarla en unos días. La clase cerró con una orden: «NO DEFIENDAS TU OFERTA. SOMÉTELA A PRUEBA.» Hoy esa orden cae sobre tu plan.",instruction:"Responde en 3 líneas. En el grupo. Sin literatura.",lines:[
+          ["DEFENSA","Por qué tu plan es el correcto. Evidencia, no intención."],["ATAQUE","La pregunta que exige evidencia, no opinión. Prohibido «yo creo que…»."],["VEREDICTO","SOBREVIVE o SE CAMBIA. Si se cambia, la corrección concreta en una línea."]],closing:"El operador no defiende su plan. Lo somete a prueba antes de que el mercado lo haga."},
+        {n:7,date:"jueves · 1 oct 2026",format:"El enemigo de hoy",status:"Publicada",title:"Qué enemigo operó en tu semana",caseText:"«Lunes: probaste tu oferta con una persona real. Martes: separaste el hecho del supuesto. Miércoles: sometiste tu plan de seguimiento a ataque. Hoy es jueves. Y la pregunta que falsifica tu supuesto — la que tu plan corregido exigía — todavía no se la has hecho a esa persona.» Hoy el enemigo no está en el trabajo. Está en el operador.",instruction:"Responde en 3 líneas. En el grupo. Sin literatura.",lines:[
+          ["ENEMIGO","El enemigo que opera en tu semana: uno de los cinco.","enemy"],["EVIDENCIA","Qué hiciste — o dejaste de hacer — que lo demuestra. Hechos observables, no sentimientos."],["ACCIÓN","La acción que lo mata mañana, antes de las 12:00: concreta y verificable."]],closing:"Un operador no tiene prohibido fracasar. Tiene prohibido utilizar el fracaso como sustituto del análisis."},
+        {n:8,date:"lunes · 5 oct 2026",format:"Escenario operativo",status:"Publicada",title:"«Mándame la información y yo te aviso»: seguir o archivar",caseText:"«Ayer le hiciste la pregunta que falsifica el supuesto. Su respuesta, textual: \"está bien, mándame la información y yo te aviso.\"» Tu ego ya lo tradujo: \"le interesa, le mando todo y espero\". La clase dijo: EL CUMPLIDO ES RUIDO. El mercado solo habla en tres pruebas: ¿ME IMPORTA? / ¿TE CREO? / ¿VALE LO QUE CUESTA?",instruction:"Responde en 3 líneas. En el grupo. Sin literatura.",lines:[
+          ["DECISIÓN","¿Lo SIGUES o lo ARCHIVAS? Una palabra, sin rodeos."],["PRUEBA DEL MERCADO","Una de las tres pruebas, aplicada al hecho — no a tu esperanza."],["PRIMERA ACCIÓN","La frase exacta que le mandas mañana, o la línea que lo archiva. Prohibido «le mando la información»."]],closing:"El operador no persigue interés. Opera con evidencia — o archiva sin culpa."},
+        {n:9,date:"martes · 6 oct 2026",format:"Lanning",status:"Publicada",title:"El mapa del ecosistema entra a evidencia",caseText:"«A las 12:00 saliste del Palco con tu mapa del ecosistema dibujado: actores, intermediarios, oportunidades. Ya marcaste con una X la oportunidad que vas a atacar primero.» El principio de las naranjas dice: CUANDO TE ASIGNEN UNA TAREA, ESTUDIA EL ECOSISTEMA QUE LA RODEA. Y la clase 1 escribió la trampa: SI NO PUEDES DEMOSTRAR LA CONSECUENCIA, TODAVÍA TIENES UNA HIPÓTESIS. El mapa no es evidencia. Es un mapa.",instruction:"Responde en 3 líneas. Prohibido proponer soluciones. En el grupo. Sin literatura.",lines:[
+          ["HECHO","Qué observaste esta mañana que otra persona podría verificar — no lo que concluiste."],["SUPUESTO","Qué tiene que ser verdad para que tu X sea una oportunidad real."],["PREGUNTA","La pregunta exacta que falsifica tu supuesto — a quién se la haces y antes de cuándo."]],closing:"Un mapa dibujado no es un problema encontrado. El operador somete el mapa a evidencia — o la X es decoración."},
+        {n:10,date:"viernes · 9 oct 2026",format:"Escenario operativo",status:"Publicada",title:"Apertura de la semana del contacto real",caseText:"«Son las 9:00 AM del lunes. Tu oferta de 1 página sobrevivió al ataque de la sala — y la sala no es el mercado. El principio del contacto dice: NO PIDAS OPINIONES. PROVOCA OBJECIONES. Esta semana tu oferta toca personas reales o sigue siendo una hipótesis. Tienes 3 nombres en la libreta. No hay nada más que preparar.»",instruction:"Responde en 3 líneas. En el grupo. Sin literatura.",lines:[
+          ["A QUIÉN","El nombre real y la razón: qué evidencia observada dice que a esta persona le puede importar."],["FRASE","La frase exacta con la que abres: provoca una objeción, no una opinión. Prohibido «¿qué te parece mi oferta?»."],["REGLA","Qué anotas de esa conversación, y qué cuenta como ruido."]],closing:"La oferta no existe hasta que el mercado la toca. Tócala hoy."},
+        {n:11,date:"miércoles · 7 oct 2026",format:"El enemigo de hoy",status:"Borrador",warning:"BORRADOR. No reutilizar tal cual en el grupo: asume una semana de contacto previa que no ocurrió.",title:"Auditoría del segundo día de contacto",caseText:"«El lunes arrancó la semana del contacto real: tu oferta toca personas reales o sigue siendo una hipótesis. Ayer fue tu segundo día tocando puertas — hoy toca la auditoría, y la clase 1 te dio el instrumento: los cinco enemigos (complacencia, mediocridad, ausencia de soluciones, efecto espectador, militante de la mediocridad). Solo hay tres estados posibles: LA TOCASTE (nombre, hora y objeción registrada), LA EVADISTE (el día \"se complicó\"), o LA HICISTE A MEDIAS (contactaste sin la autopsia previa, pediste opinión en vez de objeción, o mandaste el dossier largo que la prueba #8 prohibió).»",instruction:"Responde en 3 líneas. En el grupo. Sin literatura.",lines:[
+          ["ESTADO","Qué pasó ayer: nombre real y hora del contacto, o la evidencia exacta de la evasión con hora."],["ENEMIGO","Uno de los cinco, delatado por la conducta exacta que lo prueba.","enemy"],["CORRECCIÓN","Qué haces HOY a las 9:30 para neutralizarlo — con nombre, frase exacta y hora."]],closing:"El mercado no registra intenciones. Registra contactos. El enemigo que no nombras hoy te opera mañana."},
+        {n:12,date:"jueves · 8 oct 2026",format:"Oposición",status:"Borrador",warning:"BORRADOR. No reutilizar tal cual en el grupo: asume que las pruebas #10 y #11 fueron publicadas.",title:"Ataca tu conclusión de la semana de contacto",caseText:"«Lunes abriste la semana del contacto real: la oferta toca personas reales o sigue siendo una hipótesis. Martes y miércoles la auditaste. Hoy jueves toca lo más incómodo: tu propia conclusión. A estas alturas tienes una posición — \"mi oferta funciona\", \"el mercado no responde\", \"el problema es mi frase\". El despacho 01 te enseñó el ataque propio: la pregunta más dura que le harías a tu problema si quisieras destruirlo. Defiende tu posición con UN hecho. Después atácala con la lectura rival de la misma evidencia. Si sobrevive, es tuya. Si no, cámbiala hoy.»",instruction:"Responde en 4 líneas. En el grupo. Sin literatura.",lines:[
+          ["MI POSICIÓN","Tu conclusión de la semana del contacto, en una frase."],["MI DEFENSA","El hecho observable que la sostiene — no una sensación ni una inferencia."],["EL ATAQUE","La lectura rival: la pregunta más dura que destruiría tu posición usando la misma evidencia."],["VEREDICTO","Sobrevive / no sobrevive — y qué cambias hoy."]],closing:"La posición que no sobrevive su propio ataque no sobreviviría al mercado. Mejor matarla aquí."},
+        {n:13,date:"viernes · 9 oct 2026",format:"Lanning",status:"Borrador",warning:"BORRADOR. No reutilizar tal cual en el grupo: asume la secuencia #10–#12, que no ocurrió.",title:"La conclusión de la semana entra al Lanning",caseText:"«La semana del contacto real se cierra. Esta semana recogiste objeciones — o recogiste una conclusión sobre lo que pasó. Hoy tu conclusión entra al Lanning. Escríbela como lo que es: un problema. Después pásalo por el tamiz de la clase 2: hecho, supuesto, y la pregunta cuya respuesta destruiría tu supuesto. Si no tienes una pregunta falsificadora, tu conclusión no es análisis: es una inferencia con uniforme de hecho.»",instruction:"Responde en 3 líneas. Prohibido proponer soluciones. En el grupo. Sin literatura.",lines:[
+          ["HECHO","La evidencia observable y verificable de tu semana: objeción textual, nombre, hora. No tu conclusión."],["SUPUESTO","Qué asumes debajo de tu conclusión: la parte invisible que sostiene la historia que te contaste."],["PREGUNTA QUE LO FALSIFIQUE","La pregunta cuya respuesta destruiría tu supuesto. Nada más: ni solución, ni frase nueva, ni plan."]],closing:"Un supuesto sin pregunta falsificadora no es análisis. Es fe."},
+        {n:14,date:"sábado · 10 oct 2026",format:"El enemigo de hoy",status:"Vigente",title:"Cierre de la semana del contacto real",caseText:"«Es sábado. La semana del contacto real cierra hoy. Algunos tocaron personas reales; otros le pidieron opinión a un amigo, recibieron un cumplido y le contaron a la sala que \"el mercado respondió\".»",instruction:"Responde en 3 líneas. En el grupo. Sin literatura.",lines:[
+          ["HECHO","El nombre de UNA persona contactada y su respuesta TEXTUAL — o la línea «no contacté a nadie». Evidencia, no relato."],["ENEMIGO","Cuál de los cinco operó en ti esta semana, y la conducta concreta que lo delata."],["CORRECCIÓN","Qué haces HOY mismo con ese enemigo — nombre, hora, frase."]],closing:"El operador audita su semana con evidencia, no con relato."}
+      ];
+      var TOTAL=300,active=0,remaining=TOTAL,timerId=null,started=false,locked=false,lockWasTimeout=false,selectedVerdict="";
+      var EVALUATION_ENDPOINT="https://script.google.com/macros/s/AKfycbz126TV7AuguNiJc2nHSk8Hx3NsHtWVLDUvEJe8RoPKs4SfVsC48rbZm1hCt_OAcSMkDg/exec?action=submit&payload=";
+      var $=function(id){return document.getElementById(id)};
+      var proofSelect=$("proofSelect"),steps=$("steps"),timerValue=$("timerValue"),timerNote=$("timerNote"),timerBar=$("timerBar"),startBtn=$("startBtn"),finishBtn=$("finishBtn"),lockedBanner=$("lockedBanner"),lockReason=$("lockReason"),resultPanel=$("resultPanel"),completionText=$("completionText"),copyStatus=$("copyStatus"),aiStatus=$("aiStatus"),verdictStatus=$("verdictStatus"),sendVerdictBtn=$("sendVerdictBtn");
+      function clean(v){return(v||"").trim()}
+      function resetVerdict(){selectedVerdict="";Array.prototype.forEach.call(document.querySelectorAll(".verdict-btn"),function(btn){btn.setAttribute("aria-pressed","false")});sendVerdictBtn.disabled=true;verdictStatus.textContent="Selecciona el veredicto que te dio tu IA."}
+      function showMode(mode){$("modeHome").hidden=mode!=="home";$("modeForja").hidden=mode!=="forja";$("modeDaily").hidden=mode!=="daily";window.scrollTo({top:0,behavior:"smooth"})}
+      function renderProof(){
+        var p=proofs[active];
+        $("proofNo").textContent="#"+p.n; $("proofFormat").textContent=p.format; $("proofDate").textContent=p.date; $("proofStatus").textContent=p.status; $("proofStatus").classList.toggle("draft",p.status==="Borrador");
+        $("caseTitle").textContent=p.title; $("caseText").textContent=p.caseText; $("caseInstruction").textContent=p.instruction; $("caseWarning").textContent=p.warning||""; $("caseWarning").classList.toggle("visible",Boolean(p.warning)); $("closing").innerHTML=p.closing.replace(/(operador|mercado)/i,"<em>$1</em>");
+        steps.innerHTML=p.lines.map(function(line,i){
+          var input=line[2]==="enemy"?'<select class="line-input response" id="answer'+i+'"><option value="">Selecciona uno</option>'+ENEMIES.map(function(e){return'<option>'+e+'</option>'}).join("")+'</select>':'<textarea class="response" id="answer'+i+'" placeholder="Escribe una sola línea. Sin literatura."></textarea>';
+          return '<article class="step" id="step'+i+'"><div class="step-rail"><div class="step-number">'+String(i+1).padStart(2,"0")+'</div><div class="check-dot">✓</div></div><div class="step-body"><div class="step-title-row"><h3>'+line[0]+'</h3><span class="requirement">Línea '+(i+1)+' de '+p.lines.length+'</span></div><p class="hint">'+line[1]+'</p>'+input+'</div></article>';
+        }).join("");
+        Array.prototype.forEach.call(document.querySelectorAll(".response"),function(el){el.disabled=true;el.addEventListener("input",updateCompletion);el.addEventListener("change",updateCompletion)});
+        resetState(false);
+        $("prevBtn").disabled=active===0; $("nextBtn").disabled=active===proofs.length-1;
+      }
+      function checks(){return proofs[active].lines.map(function(_,i){var el=$("answer"+i);return clean(el.value).length>=(el.tagName==="SELECT"?1:8)})}
+      function updateCompletion(){var c=checks(),count=c.filter(Boolean).length;c.forEach(function(ok,i){$("step"+i).classList.toggle("complete",ok)});completionText.innerHTML="<b>"+count+" de "+c.length+"</b> líneas con forma completa.";finishBtn.disabled=!started||locked||count<c.length}
+      function setDisabled(value){Array.prototype.forEach.call(document.querySelectorAll(".response"),function(el){el.disabled=value})}
+      function renderTimer(){var m=Math.floor(remaining/60),s=remaining%60;timerValue.textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");timerBar.style.transform="scaleX("+Math.max(0,remaining/TOTAL)+")";if(remaining<=60&&remaining>0){timerValue.style.color="var(--danger)";timerNote.textContent="Último minuto. Cierra la forma."}else if(started&&!locked){timerValue.style.color="var(--ink)";timerNote.textContent="El reloj corre. Decide y escribe."}}
+      function tick(){remaining--;renderTimer();if(remaining<=0){clearInterval(timerId);timerId=null;lockTest(true)}}
+      function startTimer(){if(started||locked)return;started=true;setDisabled(false);startBtn.disabled=true;startBtn.textContent="Prueba en curso";timerNote.textContent="El reloj corre. Decide y escribe.";var first=document.querySelector(".response");if(first)first.focus();timerId=setInterval(tick,1000);updateCompletion()}
+      function lockTest(timeout){if(locked)return;locked=true;lockWasTimeout=timeout;if(timerId)clearInterval(timerId);timerId=null;setDisabled(true);finishBtn.disabled=true;lockedBanner.classList.add("visible");lockReason.textContent=timeout?"El cronómetro llegó a cero.":"Entregaste antes del límite.";startBtn.disabled=true;startBtn.textContent="Prueba cerrada";showResults()}
+      function showResults(){var p=proofs[active],c=checks(),count=c.filter(Boolean).length;$("score").textContent=count+"/"+c.length;$("resultTitle").textContent=count===c.length?"FORMA COMPLETA":"FORMA INCOMPLETA";$("resultMessage").textContent=count===c.length?"Todas las líneas contienen la estructura exigida.":"Faltan líneas. Esta revisión no evalúa si tu lectura es correcta.";$("checkList").innerHTML=p.lines.map(function(line,i){return'<div class="check-item '+(c[i]?"pass":"fail")+'"><strong>'+(c[i]?"✓ ":"× ")+line[0]+'</strong><span>'+(c[i]?"Línea presente.":"Falta completar esta línea.")+'</span></div>'}).join("");resultPanel.classList.add("visible");$("editBtn").style.display=lockWasTimeout?"none":"inline-block";resultPanel.scrollIntoView({behavior:"smooth",block:"start"})}
+      function unlock(){if(lockWasTimeout)return;locked=false;lockedBanner.classList.remove("visible");resultPanel.classList.remove("visible");setDisabled(false);startBtn.textContent="Prueba en curso";timerNote.textContent="El reloj sigue corriendo. Corrige y cierra.";if(remaining>0)timerId=setInterval(tick,1000);updateCompletion()}
+      function resetState(scroll){if(timerId)clearInterval(timerId);timerId=null;remaining=TOTAL;started=false;locked=false;lockWasTimeout=false;Array.prototype.forEach.call(document.querySelectorAll(".response"),function(el){el.value="";el.disabled=true});startBtn.disabled=false;startBtn.textContent="Iniciar prueba";lockedBanner.classList.remove("visible");resultPanel.classList.remove("visible");copyStatus.textContent="";aiStatus.textContent="";resetVerdict();timerValue.style.color="var(--ink)";timerNote.textContent="El reloj comienza cuando tú lo ordenes.";renderTimer();updateCompletion();if(scroll)window.scrollTo({top:0,behavior:"smooth"})}
+      function choose(index){active=Math.max(0,Math.min(proofs.length-1,index));proofSelect.value=String(active);renderProof();window.scrollTo({top:0,behavior:"smooth"})}
+      function responseText(){var p=proofs[active];return"LA FORJA — PRUEBA DIARIA #"+p.n+"\n"+p.format.toUpperCase()+"\n\n"+p.lines.map(function(line,i){return(i+1)+". "+line[0]+" — "+(clean($("answer"+i).value)||"sin respuesta")}).join("\n\n")}
+      function aiPackText(){
+        var p=proofs[active];
+        var answers=p.lines.map(function(line,i){return(i+1)+". "+line[0]+": "+(clean($("answer"+i).value)||"SIN RESPUESTA")}).join("\n");
+        var rubric=p.lines.map(function(line,i){return(i+1)+". "+line[0]+" — "+line[1]}).join("\n");
+        return "LA FORJA — PACK DE EVALUACIÓN\n\n"+
+          "PRUEBA\nNúmero: #"+p.n+"\nFormato: "+p.format+"\nTítulo: "+p.title+"\nCaso: "+p.caseText+"\nConsigna: "+p.instruction+"\n\n"+
+          "RESPUESTAS DEL ALUMNO\n"+answers+"\n\n"+
+          "PROMPT PARA EL EVALUADOR\n"+
+          "Eres el EVALUADOR de La Forja. Cero adulación, cero protección del ego. Evalúa con esta rúbrica binaria:\n"+rubric+"\n\n"+
+          "Califica cada criterio como CUMPLE o NO CUMPLE. Regla de veredicto: APROBADO si todos cumplen; A MEDIAS si falla exactamente uno; REPROBADO si fallan dos o más.\n\n"+
+          "Devuelve:\n"+
+          "VEREDICTO: APROBADO/A MEDIAS/REPROBADO.\n"+
+          "FALLO: dónde falló, citando su frase exacta.\n"+
+          "EL OPERADOR HABRÍA: la acción correcta, concreta.\n"+
+          "CONSEJOS PARA MEJORAR: 3 consejos específicos y accionables atados a sus respuestas, no genéricos.\n"+
+          "ORDEN PARA MAÑANA: una sola acción.";
+      }
+      function openEvaluation(payload){var link=document.createElement("a");link.href=EVALUATION_ENDPOINT+encodeURIComponent(JSON.stringify(payload));link.target="_blank";link.rel="noopener noreferrer";document.body.appendChild(link);link.click();document.body.removeChild(link)}
+      function proofEvaluationPayload(){var p=proofs[active],responses={};p.lines.forEach(function(line,i){responses[line[0]]=clean($("answer"+i).value)});return{alumno:clean($("studentName").value)||"Anónimo",modo:"prueba",prueba_id:"test-"+p.n,formato:p.format,formato_clave:"prueba",titulo:p.title,respuestas:responses}}
+      function sendEvaluation(){openEvaluation(proofEvaluationPayload())}
+      function copyText(text,statusEl,successMessage){function done(){statusEl.textContent=successMessage;setTimeout(function(){statusEl.textContent=""},3500)}function fallback(){var a=document.createElement("textarea");a.value=text;a.setAttribute("readonly","");a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();try{document.execCommand("copy");done()}catch(e){statusEl.textContent="No se pudo copiar. Selecciona el texto manualmente."}document.body.removeChild(a)}if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(text).then(done).catch(fallback);else fallback()}
+      function copy(){copyText(responseText(),copyStatus,"Copiado. Pégalo en el grupo.")}
+      function copyAiPack(){copyText(aiPackText(),aiStatus,"Pack copiado. Pégalo en ChatGPT o Gemini.")}
+      function chooseVerdict(value){selectedVerdict=value;Array.prototype.forEach.call(document.querySelectorAll(".verdict-btn"),function(btn){btn.setAttribute("aria-pressed",String(btn.getAttribute("data-verdict")===value))});sendVerdictBtn.disabled=false;verdictStatus.textContent="Listo para enviar: "+value+"."}
+      function shortAnswer(index){var el=$("answer"+index);var text=el?clean(el.value):"";text=(text||"sin respuesta").replace(/\s+/g," ");return text.slice(0,120)}
+      function sendVerdict(){if(!selectedVerdict)return;var p=proofs[active];var message="LA FORJA — VEREDICTO | Prueba #"+p.n+" ("+p.format+") | Veredicto de mi IA: "+selectedVerdict+" | L1: "+shortAnswer(0)+" | L2: "+shortAnswer(1)+" | L3: "+shortAnswer(2);var link=document.createElement("a");link.href="https://wa.me/529994931090?text="+encodeURIComponent(message);link.target="_blank";link.rel="noopener noreferrer";document.body.appendChild(link);link.click();document.body.removeChild(link);verdictStatus.textContent="WhatsApp abierto con el veredicto preparado."}
+      var dailyBank={
+        A:{name:"Crisis con presión de tiempo",title:"Escenario de crisis con presión de tiempo",instruction:"Responde DECISIÓN + PRIMERA ACCIÓN. La acción lleva una hora concreta de hoy.",fields:[
+          ["DECISIÓN","Qué haces. Una frase. Sin condicionales: ni «si…», ni «depende», ni «voy a pensarlo»."],
+          ["PRIMERA ACCIÓN","Tu primer movimiento, con hora de hoy. Lo ejecutas tú, no lo delegas ni lo esperas."]
+        ],criteria:[
+          "¿La decisión está tomada en UNA frase, sin condicionales («si…», «depende», «voy a pensarlo», «habría que ver»)?",
+          "¿La primera acción trae hora concreta de hoy (no «en la mañana», no «lo antes posible»)?",
+          "¿La acción la ejecuta él mismo (no la delega, no espera que otro resuelva, no «hablo con…» como acción)?"
+        ],levels:{
+          1:[
+            {code:"A1",text:"Tu proveedor principal te avisa a las 7:00 AM que el pedido de esta semana llega con tres días de retraso. Tienes stock para hoy y mañana. A las 9:00 abres. Decide."},
+            {code:"A2",text:"Tu único empleado te escribe a las 6:30 AM: está enfermo y no viene. Tienes dos clientes citados hoy que no puedes mover. Decide."}
+          ],
+          2:[
+            {code:"A3",text:"Un cliente te escribe que encontró el mismo servicio 30% más barato y que si no igualas el precio hoy, se va con la competencia. El contrato vence mañana. Decide."},
+            {code:"A4",text:"Se rompió el equipo que usas para producir. El técnico puede venir hoy (cobra el doble) o en tres días (precio normal). Tienes pedidos con entrega comprometida para pasado mañana. Decide."},
+            {code:"A5",text:"Tu socio te dice que un inversor quiere respuesta hoy antes de las 5:00 PM: entra con dinero pero pide el 40% del negocio. Sin ese dinero no llegas a fin de mes. Decide."}
+          ],
+          3:[
+            {code:"A6",text:"Te enteras de que tu competidor directo lanza mañana la misma oferta que llevas un mes preparando, con precio más bajo. Tu lanzamiento estaba previsto para la próxima semana. Tienes hasta hoy para decidir si adelantas, cambias o cancelas. Decide."},
+            {code:"A7",text:"Un cliente grande te acusa públicamente en redes de incumplimiento. El post tiene cientos de compartidos y tu teléfono no para. Tienes una hora antes de que un medio local te llame para pedir tu versión. Decide."}
+          ]
+        }},
+        B:{name:"Información incompleta",title:"Decisión con información incompleta",instruction:"Responde DECISIÓN + DATO QUE FALTA + CÓMO LO CONSIGUES HOY. Decidir no admite evasión.",fields:[
+          ["DECISIÓN","Sí o no a la oportunidad. Decides con lo que tienes; «necesito más información para decidir» es evasión."],
+          ["DATO QUE FALTA","UN dato específico que te falta (no «más información», no una lista)."],
+          ["CÓMO LO CONSIGUES HOY","La acción concreta de hoy para conseguirlo, con hora o plazo. No «investigaré»." ]
+        ],criteria:[
+          "¿Decidió de todos modos (sí o no), sin esconderse en «necesito más información para decidir»?",
+          "¿El dato que falta es UNO y específico (no «más información», no una lista, no «hay que analizar»)?",
+          "¿El cómo conseguirlo es una acción concreta de HOY con hora o plazo (no «investigaré», no «voy a averiguar»)?"
+        ],levels:{
+          1:[
+            {code:"B1",text:"Te ofrecen comprar un lote de mercancía al 50% del precio habitual. El vendedor necesita respuesta hoy. No sabes por qué está tan barato. Decide."},
+            {code:"B2",text:"Un conocido te propone asociarte: él pone el local, tú pones el trabajo. No te ha mostrado los números del local ni el contrato de alquiler. Quiere tu respuesta esta semana. Decide."}
+          ],
+          2:[
+            {code:"B3",text:"Un cliente te pide un trabajo grande fuera de tu zona habitual. El pago es bueno, pero no conoces los costos reales de hacerlo allí (transporte, permisos, personal). Te pide la cotización mañana. Decide."},
+            {code:"B4",text:"Te llega la oportunidad de alquilar un local mejor ubicado. El alquiler es el doble del actual. No sabes si el tráfico de la zona se traduce en ventas: el dueño no te da cifras. Decide."},
+            {code:"B5",text:"Un proveedor nuevo te ofrece exclusividad en tu zona si compras un volumen mínimo mensual. No sabes si tu demanda real sostiene ese volumen: nunca la mediste. Decide."}
+          ],
+          3:[
+            {code:"B6",text:"Te proponen comprar tu negocio. La oferta es seria pero está 20% por debajo de lo que crees que vale. No tienes una valuación profesional: solo tu cálculo. El comprador da 10 días. Decide."},
+            {code:"B7",text:"Un familiar te pide prestada una suma grande para «una oportunidad que no se puede explicar por teléfono». No sabes en qué la va a usar. Aquí está en juego tu relación además del dinero. Decide."}
+          ]
+        }},
+        C:{name:"Auditoría de los 5 enemigos",title:"Auditoría de los 5 enemigos sobre el día anterior",instruction:"Nombra un solo enemigo, demuestra la conducta de ayer y corrígela hoy con una acción verificable.",fields:[
+          ["ENEMIGO","UNO de los cinco (selector). No dos, no «un poco de cada uno».","enemy"],
+          ["CONDUCTA DE AYER","Lo que hiciste —o dejaste de hacer— que lo delata. Hecho observable, con hora o contexto. No sentimientos, no «en general»."],
+          ["CORRECCIÓN HOY","Qué haces HOY para neutralizarlo: acción concreta, con hora. Verificable. No «voy a tratar»." ]
+        ],criteria:[
+          "¿Nombró UN enemigo (no dos, no «un poco de cada uno», no «todos un poco»)?",
+          "¿La conducta de ayer es un hecho observable con hora o contexto concreto (no un sentimiento, no «en general», no «siempre me pasa»)?",
+          "¿La corrección de hoy trae hora y es verificable por un tercero (no «voy a tratar», no «lo haré mejor»)?"
+        ],scenario:{code:"C",text:"«Ayer pasó. Ya no lo puedes cambiar. Lo que sí puedes es auditarlo: ¿qué enemigo operó en ti ayer? Pásalo por los cinco: complacencia, mediocridad, ausencia de soluciones, efecto espectador, militante de la mediocridad. Nombra uno. El que no nombras hoy te opera mañana.»"}},
+        D:{name:"Presencia de mando",title:"Presencia de mando",instruction:"Comunicar una decisión dura en 3–4 líneas a su equipo. Un solo campo de texto.",fields:[
+          ["COMUNICADO","3–4 líneas. La decisión dura, dicha de frente: sin disculpas previas («lo siento, pero…»), sin pedir permiso («¿qué les parece?»), sin abrir negociación."]
+        ],criteria:[
+          "¿Tiene 3–4 líneas (ni un párrafo tibio de una línea, ni un discurso)?",
+          "¿Dice la decisión dura sin rodeos ni disculpas previas («lo siento, pero…», «ustedes saben que…», «no es personal»)?",
+          "¿No pide permiso ni abre negociación («¿qué les parece?», «¿están de acuerdo?», «quisiera saber su opinión»)?"
+        ],levels:{
+          1:[
+            {code:"D1",text:"Tienes que decirle a tu equipo (dos personas) que este mes no hay bono porque no se cumplió la meta. Llevan dos meses esperando ese bono. Escríbelo."},
+            {code:"D2",text:"Un empleado llega tarde por tercera vez esta semana. Tienes que comunicarle que la próxima vez hay consecuencia real. Sin sermón. Escríbelo."}
+          ],
+          2:[
+            {code:"D3",text:"Tienes que anunciar un recorte: uno de los tres puestos se elimina el viernes. Los tres están en la sala. Escríbelo."},
+            {code:"D4",text:"Un cliente importante exige que despidas al empleado que lo atendió mal. El empleado lleva años contigo. Ya tomaste tu decisión: ahora comunícala al equipo. Escríbelo."},
+            {code:"D5",text:"Vas a subir los precios 25% y tu equipo tiene miedo de perder clientes. Comunica el cambio y la razón. Sin pedir permiso. Escríbelo."}
+          ],
+          3:[
+            {code:"D6",text:"Descubriste que tu socio tomó dinero del negocio sin avisar. Vas a comunicarle que la sociedad se termina, en persona, hoy. Escribe lo que le dices."},
+            {code:"D7",text:"El negocio no da más y vas a cerrarlo. Tienes que comunicárselo a tu equipo antes de que se enteren por otro lado. Escríbelo."}
+          ]
+        }}
+      };
+      var dTotal=300,dRemaining=dTotal,dTimerId=null,dStarted=false,dLocked=false,dDay=1,dCurrent=null,dSelectedVerdict="";
+      function dailyLetter(day){var r=day%4;return r===1?"A":r===2?"B":r===3?"C":"D"}
+      function dailyLevel(day){return day<=21?1:day<=56?2:3}
+      function dailyStart(level){return level===1?1:level===2?22:57}
+      function dailyScenario(day,letter,level){if(letter==="C")return dailyBank.C.scenario;var list=dailyBank[letter].levels[level],occ=0,i;for(i=dailyStart(level);i<=day;i++){if(dailyLetter(i)===letter)occ++}return list[(occ-1)%list.length]}
+      function dResetVerdict(){dSelectedVerdict="";Array.prototype.forEach.call(document.querySelectorAll("[data-d-verdict]"),function(btn){btn.setAttribute("aria-pressed","false")});$("dSendBtn").disabled=true;$("dVerdictStatus").textContent="Selecciona el veredicto que te dio tu IA."}
+      function dRenderDay(){
+        var raw=parseInt($("dDayInput").value,10);dDay=Math.max(1,Math.min(90,isNaN(raw)?1:raw));$("dDayInput").value=String(dDay);
+        var letter=dailyLetter(dDay),level=dailyLevel(dDay),names={A:"Crisis con presión de tiempo",B:"Información incompleta",C:"Auditoría de los 5 enemigos",D:"Presencia de mando"};
+        $("dDayNo").textContent=String(dDay);$("dFormat").textContent="Día "+dDay+" de 90 · "+names[letter];$("dLevel").textContent="Nivel "+level;
+        dResetState(false);
+        if(!dailyBank[letter]){
+          dCurrent=null;$("dScenarioCode").textContent=letter;$("dUnavailable").hidden=false;$("dExercise").hidden=true;$("dUnavailableTitle").textContent="Formato "+letter+" pendiente";$("dUnavailableText").textContent="Este día corresponde a "+names[letter]+". Los escenarios de este formato se integran en la siguiente tanda.";return;
+        }
+        var format=dailyBank[letter],scenario=dailyScenario(dDay,letter,level);dCurrent={letter:letter,level:level,format:format,scenario:scenario};
+        $("dScenarioCode").textContent=scenario.code;$("dUnavailable").hidden=true;$("dExercise").hidden=false;$("dCaseTitle").textContent=format.title;$("dCaseText").textContent=scenario.text;$("dInstruction").textContent=format.instruction;
+        $("dSteps").innerHTML=format.fields.map(function(field,i){var input=field[2]==="enemy"?'<select class="line-input d-response" id="dAnswer'+i+'" disabled><option value="">Selecciona uno</option>'+ENEMIES.map(function(enemy){return'<option>'+enemy+'</option>'}).join("")+'</select>':'<textarea class="d-response" id="dAnswer'+i+'" placeholder="Escribe directo. Sin literatura." disabled></textarea>';return '<article class="step" id="dStep'+i+'"><div class="step-rail"><div class="step-number">'+String(i+1).padStart(2,"0")+'</div><div class="check-dot">✓</div></div><div class="step-body"><div class="step-title-row"><h3>'+field[0]+'</h3><span class="requirement">Campo '+(i+1)+' de '+format.fields.length+'</span></div><p class="hint">'+field[1]+'</p>'+input+'</div></article>'}).join("");
+        Array.prototype.forEach.call(document.querySelectorAll(".d-response"),function(el){el.addEventListener("input",dUpdateCompletion);el.addEventListener("change",dUpdateCompletion)});
+        $("dCriteria").innerHTML=format.criteria.map(function(criterion,i){return '<label class="daily-check"><input type="checkbox" class="d-criterion" data-index="'+i+'" aria-label="'+criterion.replace(/"/g,"&quot;")+'"><span>'+criterion+'</span></label>'}).join("");
+        Array.prototype.forEach.call(document.querySelectorAll(".d-criterion"),function(el){el.addEventListener("change",dUpdateVerdict)});dUpdateCompletion();dUpdateVerdict();
+      }
+      function dAnswers(){if(!dCurrent)return[];return dCurrent.format.fields.map(function(_,i){return clean($("dAnswer"+i).value)})}
+      function dUpdateCompletion(){if(!dCurrent)return;var vals=dAnswers(),count=vals.filter(function(v){return v.length>=8}).length;vals.forEach(function(v,i){$("dStep"+i).classList.toggle("complete",v.length>=8)});$("dCompletion").innerHTML="<b>"+count+" de "+vals.length+"</b> campos completos.";$("dFinishBtn").disabled=!dStarted||dLocked||count<vals.length}
+      function dSetDisabled(value){Array.prototype.forEach.call(document.querySelectorAll(".d-response"),function(el){el.disabled=value})}
+      function dRenderTimer(){var m=Math.floor(dRemaining/60),s=dRemaining%60;$("dTimerValue").textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");$("dTimerBar").style.transform="scaleX("+Math.max(0,dRemaining/dTotal)+")";if(dRemaining<=60&&dRemaining>0){$("dTimerValue").style.color="var(--danger)";$("dTimerNote").textContent="Último minuto. Decide y cierra."}else if(dStarted&&!dLocked){$("dTimerValue").style.color="var(--ink)";$("dTimerNote").textContent="El reloj corre. Decide y escribe."}}
+      function dTick(){dRemaining--;dRenderTimer();if(dRemaining<=0){clearInterval(dTimerId);dTimerId=null;dLock(true)}}
+      function dStart(){if(!dCurrent||dStarted||dLocked)return;dStarted=true;dSetDisabled(false);$("dStartBtn").disabled=true;$("dStartBtn").textContent="Evaluación en curso";$("dTimerNote").textContent="El reloj corre. Decide y escribe.";var first=document.querySelector(".d-response");if(first)first.focus();dTimerId=setInterval(dTick,1000);dUpdateCompletion()}
+      function dLock(timeout){if(!dCurrent||dLocked)return;dLocked=true;if(dTimerId)clearInterval(dTimerId);dTimerId=null;dSetDisabled(true);$("dFinishBtn").disabled=true;$("dLockedBanner").classList.add("visible");$("dLockReason").textContent=timeout?"El cronómetro llegó a cero.":"Cerraste antes del límite.";$("dStartBtn").disabled=true;$("dStartBtn").textContent="Respuesta cerrada";$("dResultPanel").classList.add("visible");$("dResultPanel").scrollIntoView({behavior:"smooth",block:"start"})}
+      function dResetState(scroll){if(dTimerId)clearInterval(dTimerId);dTimerId=null;dRemaining=dTotal;dStarted=false;dLocked=false;dSetDisabled(true);Array.prototype.forEach.call(document.querySelectorAll(".d-response"),function(el){el.value=""});Array.prototype.forEach.call(document.querySelectorAll(".d-criterion"),function(el){el.checked=false});["dFailure","dOperator","dTomorrow"].forEach(function(id){if($(id))$(id).value=""});$("dStartBtn").disabled=false;$("dStartBtn").textContent="Iniciar evaluación";$("dLockedBanner").classList.remove("visible");$("dResultPanel").classList.remove("visible");$("dAiStatus").textContent="";$("dTimerValue").style.color="var(--ink)";$("dTimerNote").textContent="El reloj comienza cuando tú lo ordenes.";dResetVerdict();dRenderTimer();if(dCurrent)dUpdateCompletion();if(scroll)window.scrollTo({top:0,behavior:"smooth"})}
+      function dUpdateVerdict(){var count=Array.prototype.filter.call(document.querySelectorAll(".d-criterion"),function(el){return el.checked}).length,verdict=count===3?"APROBADO":count===2?"A MEDIAS":"REPROBADO",node=$("dSelfVerdict");$("dScore").textContent=count+"/3";node.textContent=verdict;node.className="daily-verdict "+(count===3?"approved":count===2?"middle":"failed")}
+      function dAiPack(){
+        var answers=dCurrent.format.fields.map(function(field,i){return(i+1)+". "+field[0]+": "+(clean($("dAnswer"+i).value)||"SIN RESPUESTA")}).join("\n");
+        var rubric=dCurrent.format.criteria.map(function(c,i){return(i+1)+". "+c}).join("\n");
+        return "LA FORJA — EVALUADOR DIARIO DEL OPERADOR\n\nDÍA "+dDay+" DE 90\nFormato: "+dCurrent.format.name+"\nNivel: "+dCurrent.level+"\nEscenario "+dCurrent.scenario.code+": "+dCurrent.scenario.text+"\n\nRESPUESTAS DEL ALUMNO\n"+answers+"\n\nPROMPT PARA EL EVALUADOR\nEres el EVALUADOR de La Forja. Cero adulación, cero protección del ego. Evalúa con estos tres criterios binarios:\n"+rubric+"\n\nCalifica cada criterio como CUMPLE o NO CUMPLE. 3/3 = APROBADO; 2/3 = A MEDIAS; 0–1 = REPROBADO. Sin grises.\n\nDevuelve exactamente:\nVEREDICTO: APROBADO/A MEDIAS/REPROBADO.\nFALLO: dónde falló, citando su frase exacta.\nEL OPERADOR HABRÍA: la acción correcta, concreta.\nCONSEJOS PARA MEJORAR: 3 consejos específicos y accionables atados a sus respuestas.\nORDEN PARA MAÑANA: una sola acción.";
+      }
+      function dailyEvaluationPayload(){var responses={},formatKeys={A:"crisis",B:"incompleta",C:"auditoria",D:"mando"};dCurrent.format.fields.forEach(function(field,i){responses[field[0]]=clean($("dAnswer"+i).value)});return{alumno:clean($("dStudentName").value)||"Anónimo",modo:"evaluador-diario",prueba_id:"dia-"+dDay,formato:dCurrent.format.name,formato_clave:formatKeys[dCurrent.letter],titulo:dCurrent.scenario.text,respuestas:responses}}
+      function dSendEvaluation(){if(dCurrent)openEvaluation(dailyEvaluationPayload())}
+      function dChooseVerdict(value){dSelectedVerdict=value;Array.prototype.forEach.call(document.querySelectorAll("[data-d-verdict]"),function(btn){btn.setAttribute("aria-pressed",String(btn.getAttribute("data-d-verdict")===value))});$("dSendBtn").disabled=false;$("dVerdictStatus").textContent="Listo para enviar: "+value+"."}
+      function dShort(index){var el=$("dAnswer"+index),text=el?clean(el.value):"";return(text||"sin respuesta").replace(/\s+/g," ").slice(0,120)}
+      function dSend(){if(!dSelectedVerdict||!dCurrent)return;var msg="LA FORJA — EVALUADOR DIARIO | Día "+dDay+" de 90 | "+dCurrent.scenario.code+" · "+dCurrent.format.name+" · Nivel "+dCurrent.level+" | Veredicto de mi IA: "+dSelectedVerdict+" | R1: "+dShort(0)+" | R2: "+dShort(1)+(dCurrent.format.fields.length>2?" | R3: "+dShort(2):"");var link=document.createElement("a");link.href="https://wa.me/529994931090?text="+encodeURIComponent(msg);link.target="_blank";link.rel="noopener noreferrer";document.body.appendChild(link);link.click();document.body.removeChild(link);$("dVerdictStatus").textContent="WhatsApp abierto con el veredicto preparado."}
+
+      proofs.forEach(function(p,i){var o=document.createElement("option");o.value=String(i);o.textContent="#"+p.n+" · "+p.title;proofSelect.appendChild(o)});
+      proofSelect.addEventListener("change",function(){choose(Number(this.value))});$("prevBtn").addEventListener("click",function(){choose(active-1)});$("nextBtn").addEventListener("click",function(){choose(active+1)});startBtn.addEventListener("click",startTimer);$("resetBtn").addEventListener("click",function(){resetState(true)});finishBtn.addEventListener("click",function(){lockTest(false)});$("editBtn").addEventListener("click",unlock);$("copyBtn").addEventListener("click",copy);$("sendEvaluationBtn").addEventListener("click",sendEvaluation);$("copyAiBtn").addEventListener("click",copyAiPack);$("openForjaBtn").addEventListener("click",function(){showMode("forja")});$("backHomeBtn").addEventListener("click",function(){showMode("home")});Array.prototype.forEach.call(document.querySelectorAll("[data-verdict]"),function(btn){btn.addEventListener("click",function(){chooseVerdict(this.getAttribute("data-verdict"))})});sendVerdictBtn.addEventListener("click",sendVerdict);
+      $("openDailyBtn").addEventListener("click",function(){showMode("daily")});$("backDailyBtn").addEventListener("click",function(){showMode("home")});$("dLoadBtn").addEventListener("click",dRenderDay);$("dDayInput").addEventListener("keydown",function(e){if(e.key==="Enter")dRenderDay()});$("dStartBtn").addEventListener("click",dStart);$("dResetBtn").addEventListener("click",function(){dResetState(true)});$("dFinishBtn").addEventListener("click",function(){dLock(false)});$("dSendEvaluationBtn").addEventListener("click",dSendEvaluation);$("dCopyAiBtn").addEventListener("click",function(){if(dCurrent)copyText(dAiPack(),$("dAiStatus"),"Pack copiado. Pégalo en ChatGPT o Gemini.")});Array.prototype.forEach.call(document.querySelectorAll("[data-d-verdict]"),function(btn){btn.addEventListener("click",function(){dChooseVerdict(this.getAttribute("data-d-verdict"))})});$("dSendBtn").addEventListener("click",dSend);
+      renderProof();dRenderDay();
+    }());
+  </script>
+</body>
+</html>
