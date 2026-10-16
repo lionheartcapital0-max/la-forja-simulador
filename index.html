@@ -4,902 +4,278 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#11110f" />
   <link rel="icon" href="data:," />
-  <title>La Forja — Evaluador Diario</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <title>Pruebas de La Forja</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
-
     :root {
       color-scheme: light dark;
-      --bg: #f1eee8;
-      --paper: #fffdf8;
-      --paper-2: #e9e4dc;
-      --ink: #171613;
-      --muted: #5e5a52;
-      --line: #c7c0b5;
-      --line-heavy: #27231d;
-      --accent: #e65316;
-      --accent-strong: #bd3707;
-      --accent-soft: #f7d7c7;
-      --ok: #18603b;
-      --ok-soft: #dceee3;
-      --warn: #8b5c00;
-      --warn-soft: #f5e8bd;
-      --danger: #9f2116;
-      --danger-soft: #f4d6d2;
-      --shadow: rgba(37, 28, 18, .12);
-      --focus: #0b68c8;
+      --bg: #f4f5f4; --surface: #fff; --surface-2: #eaedea; --ink: #171815; --muted: #555951;
+      --line: #c8ccc5; --strong-line: #171815; --ember: #e95517; --ember-deep: #bb3810;
+      --ember-soft: #ffe3d6; --ok: #23764b; --ok-soft: #dff3e8; --danger: #b72b25;
+      --danger-soft: #fde6e4; --shadow: 0 16px 44px rgba(20,22,18,.09);
     }
-
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg: #0f100f;
-        --paper: #191a18;
-        --paper-2: #242522;
-        --ink: #f3efe7;
-        --muted: #b8b2a7;
-        --line: #45453f;
-        --line-heavy: #ece6dc;
-        --accent: #ff6a24;
-        --accent-strong: #ff8247;
-        --accent-soft: #4a2416;
-        --ok: #79d6a3;
-        --ok-soft: #173b28;
-        --warn: #efc45b;
-        --warn-soft: #413513;
-        --danger: #ff8a7f;
-        --danger-soft: #491d1a;
-        --shadow: rgba(0, 0, 0, .35);
-        --focus: #76b7ff;
+        --bg:#0d0e0c; --surface:#151613; --surface-2:#20221e; --ink:#f5f4ef; --muted:#afb3aa;
+        --line:#383b35; --strong-line:#ecebe6; --ember:#ff6a28; --ember-deep:#ff8b55;
+        --ember-soft:#3b1c10; --ok:#69c994; --ok-soft:#143324; --danger:#ff8c86;
+        --danger-soft:#3b1817; --shadow:0 18px 54px rgba(0,0,0,.35);
       }
     }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;min-width:320px;background:linear-gradient(90deg,transparent 0 49.85%,color-mix(in srgb,var(--line) 23%,transparent) 49.85% 50.15%,transparent 50.15%) 0 0/64px 64px,var(--bg);color:var(--ink);font:500 16px/1.48 "Source Sans 3",sans-serif}
+    button,input,select,textarea{font:inherit} button,select{min-height:46px} button{cursor:pointer}
+    button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid color-mix(in srgb,var(--ember) 62%,transparent);outline-offset:2px}
+    .page{width:min(1160px,calc(100% - 32px));margin:0 auto;padding:26px 0 max(64px,env(safe-area-inset-bottom))}
+    h1,h2,h3,.timer-value,.step-number,.proof-no{font-family:"Oswald",sans-serif;text-transform:uppercase}
+    .library-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,360px);gap:28px;align-items:end;border-bottom:2px solid var(--strong-line);padding:0 0 20px}
+    .eyebrow{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.78rem;font-weight:700;letter-spacing:.11em;text-transform:uppercase}
+    .eyebrow:before{content:"";width:36px;height:5px;background:var(--ember)}
+    h1{margin:8px 0 7px;font-size:clamp(2.45rem,7vw,5.15rem);line-height:.94;letter-spacing:-.035em;text-wrap:balance}
+    .head-copy{margin:0;max-width:680px;color:var(--muted);font-size:1.03rem}
+    .selector-block label{display:block;margin-bottom:7px;color:var(--muted);font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    .selector-block select{width:100%;border:1px solid var(--strong-line);border-radius:0;background:var(--surface);color:var(--ink);padding:11px 42px 11px 13px;font-weight:800}
+    .selector-nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+    .btn{border:1px solid var(--strong-line);border-radius:0;padding:11px 16px;background:var(--surface);color:var(--ink);font-weight:800;letter-spacing:.02em}
+    .btn-primary{border-color:var(--ember);background:var(--ember);color:#fff}.btn-primary:hover{background:var(--ember-deep)}
+    .btn:disabled{cursor:not-allowed;opacity:.46}.btn-quiet{border-color:var(--line);color:var(--muted)}
+    .proof-strip{display:flex;align-items:center;gap:14px;margin-top:22px;padding:14px 0;border-bottom:1px solid var(--line)}
+    .proof-no{display:grid;place-items:center;flex:0 0 58px;height:58px;background:var(--ember);color:#fff;font-size:1.65rem}
+    .proof-meta{min-width:0}.proof-meta b{display:block;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase}.proof-meta span{display:block;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .status{margin-left:auto;border:1px solid var(--line);padding:7px 10px;color:var(--muted);font-size:.74rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}
+    .case-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,.55fr);gap:22px;margin-top:22px}
+    .case-copy,.timer-panel,.step,.result-panel{background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+    .case-copy{padding:clamp(22px,4vw,40px)}.case-copy h2{margin:0 0 15px;font-size:clamp(1.45rem,3vw,2.2rem);line-height:1.08;letter-spacing:-.01em}
+    .case-copy p{margin:0;color:var(--muted);font-size:clamp(1rem,2vw,1.12rem)}
+    .instruction{margin-top:21px!important;padding:14px 16px;border-left:5px solid var(--ember);background:var(--ember-soft);color:var(--ink)!important;font-weight:700}
+    .draft-note{display:none;margin-top:12px!important;padding:12px 14px;border:1px solid var(--danger);background:var(--danger-soft);color:var(--danger)!important;font-weight:800}.draft-note.visible{display:block}.status.draft{border-color:var(--danger);background:var(--danger-soft);color:var(--danger)}
+    .timer-panel{display:flex;flex-direction:column;justify-content:space-between;padding:24px;border-top:6px solid var(--ember)}
+    .timer-label{color:var(--muted);font-size:.78rem;font-weight:700;letter-spacing:.11em;text-transform:uppercase}
+    .timer-value{margin:8px 0 2px;font-size:clamp(4.2rem,9vw,6rem);line-height:.95;letter-spacing:-.06em;font-variant-numeric:tabular-nums}
+    .timer-note{min-height:24px;color:var(--muted);font-size:.9rem}.timer-progress{height:8px;margin:20px 0;background:var(--surface-2);overflow:hidden}
+    .timer-progress i{display:block;width:100%;height:100%;background:var(--ember);transform-origin:left center;transition:transform .25s linear}.action-row{display:flex;gap:10px;flex-wrap:wrap}.action-row .btn-primary{flex:1}
+    .form-wrap{margin-top:22px}.locked-banner{display:none;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px;padding:13px 16px;border:1px solid var(--danger);background:var(--danger-soft);color:var(--danger);font-weight:800}.locked-banner.visible{display:flex}
+    .step{display:grid;grid-template-columns:92px minmax(0,1fr);margin-top:14px;box-shadow:none}.step-rail{padding:23px 18px;border-right:1px solid var(--line);background:var(--surface-2);text-align:center}.step-number{color:var(--ember);font-size:2.25rem;line-height:1}
+    .check-dot{display:grid;place-items:center;width:28px;height:28px;margin:18px auto 0;border:2px solid var(--line);border-radius:50%;color:transparent;font-size:.8rem;font-weight:900;transition:.2s ease}.step.complete .check-dot{border-color:var(--ok);background:var(--ok);color:#fff}
+    .step-body{padding:clamp(20px,4vw,32px)}.step-title-row{display:flex;justify-content:space-between;gap:12px;align-items:baseline}.step h3{margin:0;font-size:clamp(1.35rem,3vw,1.85rem);letter-spacing:.01em}.requirement{color:var(--muted);font-size:.8rem;font-weight:700;text-align:right}.hint{margin:5px 0 18px;color:var(--muted)}
+    textarea,select.line-input{width:100%;border:1px solid var(--line);border-radius:0;background:var(--bg);color:var(--ink);padding:12px 13px}textarea{min-height:96px;resize:vertical}textarea::placeholder{color:color-mix(in srgb,var(--muted) 65%,transparent)}textarea:disabled,select:disabled{opacity:.64;cursor:not-allowed}
+    .submit-bar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:20px 0 0;padding:18px;border:1px solid var(--strong-line);background:var(--surface)}.completion{color:var(--muted)}.completion b{color:var(--ink)}.submit-bar .btn{min-width:190px}
+    .result-panel{display:none;margin-top:24px;border-top:7px solid var(--ember);padding:clamp(22px,4vw,38px)}.result-panel.visible{display:block}.result-head{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:start}.result-panel h2{margin:0;font-size:clamp(1.7rem,4vw,2.6rem)}.result-panel p{margin:8px 0 0;color:var(--muted)}
+    .score{min-width:92px;border:1px solid var(--line);background:var(--surface-2);padding:10px 13px;text-align:center;font-family:"Oswald",sans-serif;font-size:1.55rem;font-variant-numeric:tabular-nums}.check-list{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0}.check-item{padding:14px;border:1px solid var(--line);background:var(--surface-2)}.check-item strong{display:block}.check-item span{display:block;margin-top:4px;color:var(--muted);font-size:.85rem}.check-item.pass strong{color:var(--ok)}.check-item.fail strong{color:var(--danger)}
+    .boundary{margin-top:18px;padding:14px 16px;border-left:5px solid var(--ember);background:var(--ember-soft);color:var(--ink);font-weight:700}.result-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.copy-status{align-self:center;min-height:22px;color:var(--ok);font-size:.9rem;font-weight:700}
+    .ai-eval{margin-top:30px;padding-top:26px;border-top:2px solid var(--strong-line)}.ai-kicker{margin:0 0 5px;color:var(--ember);font-size:.78rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase}.ai-eval h3{margin:0;font-size:clamp(1.55rem,3vw,2.1rem);line-height:1.05}.ai-eval>p{max-width:720px;margin:9px 0 18px;color:var(--muted)}.auto-eval{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px 12px;align-items:end;margin:18px 0 24px;padding:18px;border:1px solid var(--strong-line);background:var(--surface-2)}.auto-eval label{grid-column:1/-1;color:var(--ink);font-size:.88rem;font-weight:800}.auto-eval input{width:100%;min-height:48px;border:1px solid var(--strong-line);border-radius:0;background:var(--surface);color:var(--ink);padding:11px 13px}.auto-eval .btn{min-width:245px}.auto-eval-note{grid-column:1/-1;margin:2px 0 0;color:var(--muted);font-size:.9rem}.manual-eval-label{margin:0 0 8px;color:var(--muted);font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.ai-flow{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:0 0 18px;border:1px solid var(--line);background:var(--line)}.ai-flow div{padding:13px 14px;background:var(--surface-2)}.ai-flow b{display:block;color:var(--ember);font-family:"Oswald",sans-serif;font-size:1.2rem}.ai-flow span{display:block;margin-top:2px;color:var(--muted);font-size:.86rem}.ai-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.ai-actions .btn{min-width:220px}.ai-status{min-height:22px;color:var(--ok);font-size:.9rem;font-weight:700}
+    .closing{margin:32px auto 0;max-width:800px;text-align:center;font-family:"Oswald",sans-serif;font-size:clamp(1.25rem,3vw,1.75rem);line-height:1.3;text-transform:uppercase}.closing em{color:var(--ember);font-style:normal}.noscript{margin:20px;padding:16px;border:1px solid var(--danger);background:var(--danger-soft);color:var(--danger)}
+    .verdict-submit{margin-top:26px;padding-top:24px;border-top:1px solid var(--line)}.verdict-submit h3{margin:0;font-size:clamp(1.4rem,3vw,1.85rem)}.verdict-submit>p{margin:7px 0 15px;color:var(--muted)}.verdict-options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.verdict-btn[aria-pressed="true"]{border-color:var(--ember);background:var(--ember-soft);color:var(--ember-deep)}.send-verdict{margin-top:12px;width:100%}.verdict-status{min-height:22px;margin:8px 0 0;color:var(--muted);font-size:.9rem;font-weight:700}
 
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background:
-        linear-gradient(90deg, transparent 0 50%, color-mix(in srgb, var(--line) 20%, transparent) 50% 51%, transparent 51%) 0 0 / 38px 38px,
-        var(--bg);
-      color: var(--ink);
-      font-family: "IBM Plex Sans", sans-serif;
-      line-height: 1.45;
-    }
-    button, input, textarea, select { font: inherit; }
-    button, input, textarea, select { color: inherit; }
-    button { touch-action: manipulation; }
-    [hidden] { display: none !important; }
-
-    .page {
-      width: min(760px, 100%);
-      margin: 0 auto;
-      padding: 18px 14px 72px;
-    }
-
-    .start-panel {
-      background: var(--paper);
-      border-top: 7px solid var(--accent);
-      border-bottom: 2px solid var(--line-heavy);
-      box-shadow: 0 12px 30px var(--shadow);
-      padding: 24px 18px 20px;
-    }
-    .cycle-mark {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      color: var(--accent-strong);
-      font-family: "Barlow Condensed", sans-serif;
-      font-size: .95rem;
-      font-weight: 800;
-      letter-spacing: .09em;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-    .cycle-mark::before { content: ""; width: 28px; height: 4px; background: var(--accent); }
-    h1, h2, h3, legend {
-      font-family: "Barlow Condensed", sans-serif;
-      letter-spacing: -.01em;
-    }
-    h1 {
-      font-size: clamp(2.35rem, 12vw, 4.2rem);
-      line-height: .88;
-      text-transform: uppercase;
-      margin: 0 0 14px;
-      max-width: 12ch;
-    }
-    .lead { color: var(--muted); margin: 0 0 22px; max-width: 54ch; font-size: 1rem; }
-    .day-controls { display: grid; grid-template-columns: 1fr; gap: 10px; }
-    .day-field label {
-      display: block;
-      font-family: "Barlow Condensed", sans-serif;
-      font-weight: 800;
-      text-transform: uppercase;
-      font-size: 1rem;
-      margin-bottom: 5px;
-    }
-    .day-field input {
-      width: 100%;
-      min-height: 54px;
-      padding: 8px 13px;
-      border: 2px solid var(--line-heavy);
-      background: var(--paper);
-      border-radius: 0;
-      font-family: "Barlow Condensed", sans-serif;
-      font-size: 1.55rem;
-      font-weight: 800;
-    }
-    .day-field input:focus, textarea:focus, select:focus, .name-input:focus {
-      outline: 3px solid color-mix(in srgb, var(--focus) 34%, transparent);
-      outline-offset: 2px;
-      border-color: var(--focus);
-    }
-    .error {
-      color: var(--danger);
-      font-weight: 700;
-      min-height: 1.5em;
-      margin: 7px 0 0;
-    }
-
-    .btn {
-      border: 0;
-      border-radius: 0;
-      min-height: 52px;
-      padding: 12px 16px;
-      cursor: pointer;
-      font-family: "Barlow Condensed", sans-serif;
-      font-weight: 800;
-      font-size: 1.06rem;
-      letter-spacing: .04em;
-      text-transform: uppercase;
-    }
-    .btn:focus-visible, summary:focus-visible, .check-row:focus-within {
-      outline: 3px solid color-mix(in srgb, var(--focus) 45%, transparent);
-      outline-offset: 2px;
-    }
-    .btn-primary { background: var(--accent); color: #180a03; border-bottom: 4px solid #8c2704; }
-    .btn-primary:hover { background: #ff7030; }
-    .btn-primary:active { transform: translateY(2px); border-bottom-width: 2px; }
-    .btn-dark { background: var(--line-heavy); color: var(--paper); border-bottom: 4px solid var(--accent); }
-    .btn-ghost { background: transparent; border: 2px solid var(--line-heavy); color: var(--ink); }
-    .btn:disabled { cursor: not-allowed; opacity: .45; filter: grayscale(.6); transform: none; }
-
-    .timer-rail {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      margin: 16px 0;
-      background: var(--line-heavy);
-      color: var(--paper);
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: center;
-      gap: 14px;
-      padding: 11px 14px;
-      box-shadow: 0 6px 14px var(--shadow);
-    }
-    .timer-label { font-family: "Barlow Condensed", sans-serif; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
-    .timer { font-family: "Barlow Condensed", sans-serif; font-size: 2rem; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
-    .timer-rail.warning { background: var(--warn); color: #181006; }
-    .timer-rail.locked { background: var(--danger); color: #fff; }
-
-    .test-shell { position: relative; }
-    .locked-banner {
-      background: var(--danger-soft);
-      color: var(--danger);
-      border: 2px solid var(--danger);
-      padding: 18px;
-      margin: 0 0 16px;
-    }
-    .locked-banner strong { display: block; font-family: "Barlow Condensed"; font-size: 1.7rem; text-transform: uppercase; }
-    .locked-banner p { margin: 4px 0 0; }
-
-    .scenario-card {
-      background: var(--paper);
-      box-shadow: 0 12px 30px var(--shadow);
-      border-top: 7px solid var(--accent);
-      padding: 20px 18px 22px;
-      margin-bottom: 16px;
-    }
-    .meta-row { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: baseline; margin-bottom: 14px; }
-    .format-name { color: var(--accent-strong); font-family: "Barlow Condensed"; font-weight: 900; text-transform: uppercase; font-size: 1.2rem; }
-    .level { color: var(--muted); font-weight: 700; font-size: .9rem; }
-    .scenario-card h2 { margin: 0 0 12px; font-size: 2rem; line-height: 1; text-transform: uppercase; }
-    .scenario-text { margin: 0; font-size: 1.08rem; line-height: 1.55; }
-
-    .section {
-      background: var(--paper);
-      border-bottom: 2px solid var(--line);
-      padding: 20px 18px 22px;
-      margin-bottom: 14px;
-    }
-    .section-head {
-      display: flex;
-      align-items: baseline;
-      gap: 10px;
-      margin-bottom: 17px;
-    }
-    .step-num { color: var(--accent); font-family: "Barlow Condensed"; font-size: 1.15rem; font-weight: 900; }
-    .section h3, .section legend { margin: 0; font-size: 1.55rem; line-height: 1; text-transform: uppercase; }
-    fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
-
-    .response-field { margin-bottom: 20px; }
-    .response-field:last-child { margin-bottom: 0; }
-    .response-field label {
-      display: block;
-      font-family: "Barlow Condensed";
-      font-size: 1.12rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
-    .hint { color: var(--muted); display: block; margin: 0 0 8px; font-size: .9rem; }
-    textarea, select, .name-input {
-      width: 100%;
-      border: 2px solid var(--line);
-      background: var(--paper);
-      border-radius: 0;
-      padding: 12px;
-    }
-    textarea { min-height: 112px; resize: vertical; line-height: 1.5; }
-    textarea.long { min-height: 150px; }
-    select { min-height: 52px; }
-    textarea:disabled, select:disabled, input:disabled { opacity: .68; background: var(--paper-2); }
-
-    .checks { display: grid; gap: 9px; }
-    .check-row {
-      display: grid;
-      grid-template-columns: 28px 1fr;
-      gap: 11px;
-      align-items: start;
-      padding: 12px;
-      background: var(--paper-2);
-      border: 2px solid transparent;
-      cursor: pointer;
-    }
-    .check-row:has(input:checked) { border-color: var(--ok); background: var(--ok-soft); }
-    .check-row input { width: 22px; height: 22px; margin: 1px 0 0; accent-color: var(--ok); }
-    .check-row span { line-height: 1.35; }
-
-    .verdict {
-      margin-top: 15px;
-      padding: 14px;
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 12px;
-      background: var(--danger-soft);
-      color: var(--danger);
-      border-top: 4px solid currentColor;
-    }
-    .verdict.mid { background: var(--warn-soft); color: var(--warn); }
-    .verdict.pass { background: var(--ok-soft); color: var(--ok); }
-    .verdict-label { font-size: .82rem; font-weight: 800; text-transform: uppercase; }
-    .verdict-value { font-family: "Barlow Condensed"; font-size: 1.7rem; font-weight: 900; text-align: right; }
-
-    .send-block { background: var(--line-heavy); color: var(--paper); border-bottom: 0; }
-    .send-block h3 { color: var(--paper); }
-    .send-block .hint { color: color-mix(in srgb, var(--paper) 72%, transparent); }
-    .name-input { background: transparent; color: var(--paper); border-color: color-mix(in srgb, var(--paper) 55%, transparent); margin: 7px 0 14px; }
-    .name-label { display: block; font-family: "Barlow Condensed"; font-weight: 900; font-size: 1.15rem; text-transform: uppercase; }
-    .send-block .btn-primary { width: 100%; min-height: 60px; font-size: 1.25rem; }
-    .send-note { margin: 12px 0 0; font-size: .87rem; color: color-mix(in srgb, var(--paper) 76%, transparent); }
-    .send-status { min-height: 1.5em; margin: 10px 0 0; font-weight: 700; color: #ffb38e; }
-
-    details {
-      background: var(--paper);
-      border: 2px solid var(--line);
-      margin-top: 16px;
-    }
-    summary {
-      padding: 15px 17px;
-      cursor: pointer;
-      font-family: "Barlow Condensed";
-      font-weight: 900;
-      font-size: 1.15rem;
-      text-transform: uppercase;
-      list-style: none;
-    }
-    summary::-webkit-details-marker { display: none; }
-    summary::after { content: "+"; float: right; color: var(--accent); font-size: 1.4rem; }
-    details[open] summary::after { content: "−"; }
-    .secondary-body { padding: 0 16px 18px; }
-    .pack-preview {
-      white-space: pre-wrap;
-      background: var(--paper-2);
-      padding: 13px;
-      border-left: 4px solid var(--accent);
-      max-height: 280px;
-      overflow: auto;
-      font-size: .82rem;
-      line-height: 1.5;
-      margin: 0 0 12px;
-    }
-    .secondary-actions { display: grid; gap: 8px; }
-    .secondary-note { color: var(--muted); font-size: .86rem; margin: 12px 0 0; }
-
-    .toast {
-      position: fixed;
-      left: 50%;
-      bottom: max(18px, env(safe-area-inset-bottom));
-      transform: translateX(-50%);
-      background: var(--line-heavy);
-      color: var(--paper);
-      padding: 11px 16px;
-      z-index: 50;
-      box-shadow: 0 8px 24px var(--shadow);
-      font-weight: 700;
-      width: max-content;
-      max-width: calc(100% - 28px);
-      text-align: center;
-    }
-
-    @media (min-width: 620px) {
-      .page { padding: 34px 22px 86px; }
-      .start-panel { padding: 34px 34px 30px; }
-      .day-controls { grid-template-columns: 180px 1fr; align-items: end; }
-      .scenario-card, .section { padding-left: 30px; padding-right: 30px; }
-      .secondary-actions { grid-template-columns: 1fr 1fr; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-    }
+    @media(max-width:820px){.library-head,.case-grid{grid-template-columns:1fr}.selector-block{max-width:none}.timer-panel{min-height:285px}.check-list{grid-template-columns:1fr}.ai-flow{grid-template-columns:1fr}.auto-eval{grid-template-columns:1fr}.auto-eval .btn{width:100%;min-width:0}}
+    @media(max-width:620px){.page{width:min(100% - 22px,1160px);padding-top:16px}.library-head{gap:20px}h1{font-size:clamp(2.7rem,15vw,4.4rem)}.verdict-options{grid-template-columns:1fr}.proof-strip{align-items:flex-start;flex-wrap:wrap}.status{display:none}.status.draft{display:block;margin-left:72px}.step{grid-template-columns:54px minmax(0,1fr)}.step-rail{padding:20px 8px}.step-number{font-size:1.65rem}.check-dot{width:24px;height:24px}.step-title-row,.result-head,.submit-bar{align-items:stretch;flex-direction:column;grid-template-columns:1fr}.step-title-row{display:flex}.requirement{text-align:left}.submit-bar{display:flex}.submit-bar .btn{width:100%}.score{justify-self:start}.locked-banner{align-items:flex-start;flex-direction:column}.proof-meta span{white-space:normal}.result-actions .btn,.ai-actions .btn{width:100%}.ai-actions{align-items:stretch;flex-direction:column}.ai-status{width:100%}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
   </style>
 </head>
 <body>
+  <noscript><div class="noscript">Este jugador necesita JavaScript para cargar las pruebas, activar el cronómetro y revisar la forma.</div></noscript>
   <main class="page">
-    <section class="start-panel" aria-labelledby="start-title">
-      <div class="cycle-mark">La Forja · Evaluador Diario del Operador</div>
-      <h1 id="start-title">¿Qué día estás forjando?</h1>
-      <p class="lead" style="margin-top:-4px; margin-bottom:12px; font-weight:700; color:var(--accent-strong);">Programa de 90 días</p>
-      <p class="lead">Escribe el número. Al empezar tienes 5:00. Cuando el reloj llegue a cero, la prueba queda cerrada.</p>
-      <div class="day-controls">
-        <div class="day-field">
-          <label for="dayInput">Día</label>
-          <input id="dayInput" type="number" inputmode="numeric" min="1" max="90" placeholder="1–90" aria-describedby="dayError" />
-        </div>
-        <button class="btn btn-primary" id="startBtn" type="button">Empezar prueba</button>
+    <section id="modeForja">
+    <header class="library-head">
+      <div>
+        <div class="eyebrow">Jugador · Cohorte 1</div>
+        <h1>Biblioteca de pruebas</h1>
+        <p class="head-copy">Elige una prueba, ejecuta en cinco minutos y entrega al grupo. Cambiar de prueba reinicia la respuesta.</p>
       </div>
-      <p class="error" id="dayError" role="alert"></p>
+      <div class="selector-block">
+        <label for="proofSelect">Prueba activa</label>
+        <select id="proofSelect" aria-label="Seleccionar prueba"></select>
+        <div class="selector-nav">
+          <button class="btn btn-quiet" type="button" id="prevBtn">← Anterior</button>
+          <button class="btn btn-quiet" type="button" id="nextBtn">Siguiente →</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="proof-strip">
+      <div class="proof-no" id="proofNo">#1</div>
+      <div class="proof-meta"><b id="proofFormat">Lanning</b><span id="proofDate">25 sep 2026</span></div>
+      <div class="status" id="proofStatus">Publicada</div>
+    </div>
+
+    <section class="case-grid" aria-labelledby="caseTitle">
+      <article class="case-copy">
+        <h2 id="caseTitle"></h2>
+        <p id="caseText"></p>
+        <p class="instruction" id="caseInstruction"></p>
+        <p class="draft-note" id="caseWarning"></p>
+      </article>
+      <aside class="timer-panel" aria-live="polite">
+        <div>
+          <div class="timer-label">Tiempo de ejecución</div>
+          <div class="timer-value" id="timerValue">05:00</div>
+          <div class="timer-note" id="timerNote">El reloj comienza cuando tú lo ordenes.</div>
+          <div class="timer-progress" aria-hidden="true"><i id="timerBar"></i></div>
+        </div>
+        <div class="action-row">
+          <button class="btn btn-primary" id="startBtn" type="button">Iniciar prueba</button>
+          <button class="btn btn-quiet" id="resetBtn" type="button">Reiniciar</button>
+        </div>
+      </aside>
     </section>
 
-    <div id="testArea" hidden>
-      <div class="timer-rail" id="timerRail" aria-live="polite">
-        <span class="timer-label">Tiempo restante</span>
-        <span class="timer" id="timer">05:00</span>
+    <section class="form-wrap" aria-label="Respuesta a la prueba">
+      <div class="locked-banner" id="lockedBanner" role="status"><span>TIEMPO. Lo que hay es lo que va.</span><span id="lockReason">Respuesta bloqueada.</span></div>
+      <div id="steps"></div>
+      <div class="submit-bar">
+        <div class="completion" id="completionText"><b>0 de 3</b> líneas con forma completa.</div>
+        <button class="btn btn-primary" type="button" id="finishBtn" disabled>Revisar forma</button>
       </div>
+    </section>
 
-      <div class="test-shell" id="testShell">
-        <div class="locked-banner" id="lockedBanner" hidden role="alert">
-          <strong>Tiempo.</strong>
-          <p>La prueba quedó bloqueada. Cambia o reinicia el día para volver a empezar.</p>
+    <section class="result-panel" id="resultPanel" aria-live="polite">
+      <div class="result-head">
+        <div><h2 id="resultTitle">Chequeo de forma</h2><p id="resultMessage">La estructura está completa.</p></div>
+        <div class="score" id="score">0/3</div>
+      </div>
+      <div class="check-list" id="checkList"></div>
+      <div class="boundary">Esto revisa la <strong>FORMA</strong>, no dicta el veredicto. El contenido pasa a la evaluación estricta con IA al estándar: <strong>APROBADO / A MEDIAS / REPROBADO</strong>.</div>
+      <div class="result-actions">
+        <button class="btn btn-primary" type="button" id="copyBtn">Copiar para WhatsApp</button>
+        <button class="btn" type="button" id="editBtn">Volver a editar</button>
+        <span class="copy-status" id="copyStatus" role="status"></span>
+      </div>
+      <section class="ai-eval" aria-labelledby="aiEvalTitle">
+        <p class="ai-kicker">Evaluación con IA</p>
+        <h3 id="aiEvalTitle">Lleva tu respuesta al evaluador</h3>
+        <p>Envía tu ejecución al evaluador. La evaluación la revisa el equipo y la recibes por WhatsApp.</p>
+        <div class="auto-eval">
+          <label for="studentName">Tu nombre (para el registro)</label>
+          <input id="studentName" type="text" autocomplete="name" placeholder="Anónimo" />
+          <button class="btn btn-primary" type="button" id="sendEvaluationBtn">ENVIAR PARA EVALUACIÓN</button>
+          <p class="auto-eval-note">Se abre la confirmación de recepción. La evaluación la revisa el equipo y la recibes por WhatsApp.</p>
         </div>
-
-        <article class="scenario-card">
-          <div class="meta-row">
-            <span class="format-name" id="formatName"></span>
-            <span class="level" id="levelName"></span>
+        <p class="manual-eval-label">Alternativa manual</p>
+        <div class="ai-flow" aria-label="Pasos para la evaluación manual">
+          <div><b>01</b><span>Copia el pack completo.</span></div>
+          <div><b>02</b><span>Pégalo en tu IA.</span></div>
+          <div><b>03</b><span>Ejecuta la orden para mañana.</span></div>
+        </div>
+        <div class="ai-actions">
+          <button class="btn" type="button" id="copyAiBtn">Copiar pack para mi IA</button>
+          <span class="ai-status" id="aiStatus" role="status"></span>
+        </div>
+        <div class="verdict-submit" aria-labelledby="verdictTitle">
+          <h3 id="verdictTitle">Registra el veredicto de tu IA</h3>
+          <p>Cuando termine la evaluación, marca el resultado y envíalo. El mensaje incluye esta prueba y tus tres primeras líneas.</p>
+          <div class="verdict-options" role="group" aria-label="Veredicto de la IA">
+            <button class="btn verdict-btn" type="button" data-verdict="APROBADO" aria-pressed="false">APROBADO</button>
+            <button class="btn verdict-btn" type="button" data-verdict="A MEDIAS" aria-pressed="false">A MEDIAS</button>
+            <button class="btn verdict-btn" type="button" data-verdict="REPROBADO" aria-pressed="false">REPROBADO</button>
           </div>
-          <h2 id="scenarioTitle"></h2>
-          <p class="scenario-text" id="scenarioText"></p>
-        </article>
+          <button class="btn btn-primary send-verdict" type="button" id="sendVerdictBtn" disabled>Enviar veredicto a richard</button>
+          <p class="verdict-status" id="verdictStatus" role="status">Selecciona el veredicto que te dio tu IA.</p>
+        </div>
+      </section>
+    </section>
 
-        <section class="section" aria-labelledby="answerHeading">
-          <div class="section-head"><span class="step-num">01</span><h3 id="answerHeading">Responde</h3></div>
-          <div id="responseFields"></div>
-        </section>
+    <p class="closing" id="closing"></p>
+    </section>
 
-        <section class="section" aria-labelledby="checkHeading">
-          <div class="section-head"><span class="step-num">02</span><h3 id="checkHeading">Pasa el filtro</h3></div>
-          <fieldset>
-            <legend class="visually-hidden" hidden>Comprobaciones binarias</legend>
-            <div class="checks" id="checks"></div>
-          </fieldset>
-          <div class="verdict" id="verdictBox" aria-live="polite">
-            <div><div class="verdict-label">Veredicto manual</div><strong id="scoreText">0/3</strong></div>
-            <div class="verdict-value" id="verdictText">REPROBADO</div>
-          </div>
-        </section>
-
-        <section class="section" aria-labelledby="auditHeading">
-          <div class="section-head"><span class="step-num">03</span><h3 id="auditHeading">No adornes el fallo</h3></div>
-          <div class="response-field">
-            <label for="fallo">Fallo</label>
-            <span class="hint">Nombra la falla central. Una, no una excusa.</span>
-            <textarea id="fallo" data-eval-field="FALLO"></textarea>
-          </div>
-          <div class="response-field">
-            <label for="operador">El operador habría</label>
-            <span class="hint">La conducta correcta, dicha en concreto.</span>
-            <textarea id="operador" data-eval-field="EL OPERADOR HABRÍA"></textarea>
-          </div>
-          <div class="response-field">
-            <label for="orden">Orden para mañana</label>
-            <span class="hint">Una orden ejecutable. Sin motivación, sin discurso.</span>
-            <textarea id="orden" data-eval-field="ORDEN PARA MAÑANA"></textarea>
-          </div>
-        </section>
-
-        <section class="section send-block" aria-labelledby="sendHeading">
-          <div class="section-head"><span class="step-num">04</span><h3 id="sendHeading">Entrega</h3></div>
-          <label class="name-label" for="studentName">Tu nombre (para el registro)</label>
-          <input class="name-input" id="studentName" type="text" autocomplete="name" placeholder="Nombre y apellido" />
-          <button class="btn btn-primary timed-control" id="sendBtn" type="button">Enviar para evaluación</button>
-          <p class="send-note">Se abre tu evaluación calificada por IA (veredicto, fallo, consejos y orden para mañana). El veredicto le llega a richard automáticamente.</p>
-          <p class="send-status" id="sendStatus" role="status"></p>
-        </section>
-
-        <details id="manualTools">
-          <summary>Opciones manuales</summary>
-          <div class="secondary-body">
-            <p class="hint">El pack reúne el escenario, tus respuestas y el veredicto manual. Úsalo solo si no puedes enviar la evaluación principal.</p>
-            <pre class="pack-preview" id="packPreview"></pre>
-            <div class="secondary-actions">
-              <button class="btn btn-ghost timed-control" id="copyBtn" type="button">Copiar pack para IA</button>
-              <button class="btn btn-dark timed-control" id="whatsappBtn" type="button">Enviar por WhatsApp</button>
-            </div>
-            <p class="secondary-note">WhatsApp abre el selector de chat con el texto preparado. Tú eliges el destinatario y confirmas el envío.</p>
-          </div>
-        </details>
-      </div>
-    </div>
   </main>
 
-  <div class="toast" id="toast" hidden role="status"></div>
-
   <script>
-    (function () {
-      'use strict';
-
-      var SUBMIT_BASE = 'https://script.google.com/macros/s/AKfycbz126TV7AuguNiJc2nHSk8Hx3NsHtWVLDUvEJe8RoPKs4SfVsC48rbZm1hCt_OAcSMkDg/exec?action=submit&payload=';
-      var WHATSAPP_BASE = 'https://wa.me/?text=';
-
-      var banks = {
-        crisis: {
-          visible: 'Crisis',
-          pools: {
-            1: [
-              'Tu proveedor principal te avisa a las 7:00 AM que el pedido de esta semana llega con tres días de retraso. Tienes stock para hoy y mañana. A las 9:00 abres. Decide.',
-              'Tu único empleado te escribe a las 6:30 AM: está enfermo y no viene. Tienes dos clientes citados hoy que no puedes mover. Decide.'
-            ],
-            2: [
-              'Un cliente te escribe que encontró el mismo servicio 30% más barato y que si no igualas el precio hoy, se va con la competencia. El contrato vence mañana. Decide.',
-              'Se rompió el equipo que usas para producir. El técnico puede venir hoy (cobra el doble) o en tres días (precio normal). Tienes pedidos con entrega comprometida para pasado mañana. Decide.',
-              'Tu socio te dice que un inversor quiere respuesta hoy antes de las 5:00 PM: entra con dinero pero pide el 40% del negocio. Sin ese dinero no llegas a fin de mes. Decide.'
-            ],
-            3: [
-              'Te enteras de que tu competidor directo lanza mañana la misma oferta que llevas un mes preparando, con precio más bajo. Tu lanzamiento estaba previsto para la próxima semana. Tienes hasta hoy para decidir si adelantas, cambias o cancelas. Decide.',
-              'Un cliente grande te acusa públicamente en redes de incumplimiento. El post tiene cientos de compartidos y tu teléfono no para. Tienes una hora antes de que un medio local te llame para pedir tu versión. Decide.'
-            ]
-          },
-          fields: [
-            { label: 'DECISIÓN', hint: 'Qué haces. Una frase. Sin condicionales: ni «si…», ni «depende», ni «voy a pensarlo».', rows: 4 },
-            { label: 'PRIMERA ACCIÓN', hint: 'Tu primer movimiento, con hora de hoy. Lo ejecutas tú, no lo delegas ni lo esperas.', rows: 4 }
-          ],
-          checks: [
-            '¿decisión en UNA frase sin condicionales?',
-            '¿la acción trae hora concreta de hoy?',
-            '¿la ejecuta él mismo?'
-          ]
-        },
-        incompleta: {
-          visible: 'Información incompleta',
-          pools: {
-            1: [
-              'Te ofrecen comprar un lote de mercancía al 50% del precio habitual. El vendedor necesita respuesta hoy. No sabes por qué está tan barato. Decide.',
-              'Un conocido te propone asociarte: él pone el local, tú pones el trabajo. No te ha mostrado los números del local ni el contrato de alquiler. Quiere tu respuesta esta semana. Decide.'
-            ],
-            2: [
-              'Un cliente te pide un trabajo grande fuera de tu zona habitual. El pago es bueno, pero no conoces los costos reales de hacerlo allí (transporte, permisos, personal). Te pide la cotización mañana. Decide.',
-              'Te llega la oportunidad de alquilar un local mejor ubicado. El alquiler es el doble del actual. No sabes si el tráfico de la zona se traduce en ventas: el dueño no te da cifras. Decide.',
-              'Un proveedor nuevo te ofrece exclusividad en tu zona si compras un volumen mínimo mensual. No sabes si tu demanda real sostiene ese volumen: nunca la mediste. Decide.'
-            ],
-            3: [
-              'Te proponen comprar tu negocio. La oferta es seria pero está 20% por debajo de lo que crees que vale. No tienes una valuación profesional: solo tu cálculo. El comprador da 10 días. Decide.',
-              'Un familiar te pide prestada una suma grande para «una oportunidad que no se puede explicar por teléfono». No sabes en qué la va a usar. Aquí está en juego tu relación además del dinero. Decide.'
-            ]
-          },
-          fields: [
-            { label: 'DECISIÓN', hint: 'Sí o no a la oportunidad. Decides con lo que tienes; «necesito más información para decidir» es evasión.', rows: 4 },
-            { label: 'DATO QUE FALTA', hint: 'UN dato específico que te falta (no «más información», no una lista).', rows: 4 },
-            { label: 'CÓMO LO CONSIGUES HOY', hint: 'La acción concreta de hoy para conseguirlo, con hora o plazo. No «investigaré».', rows: 4 }
-          ],
-          checks: [
-            '¿decidió de todos modos sin esconderse?',
-            '¿el dato es UNO y específico?',
-            '¿el cómo es acción concreta de HOY?'
-          ]
-        },
-        auditoria: {
-          visible: 'Auditoría de enemigos',
-          fixed: 'Ayer pasó. Ya no lo puedes cambiar. Lo que sí puedes es auditarlo: ¿qué enemigo operó en ti ayer? Pásalo por los cinco: complacencia, mediocridad, ausencia de soluciones, efecto espectador, militante de la mediocridad. Nombra uno. El que no nombras hoy te opera mañana.',
-          fields: [
-            { label: 'ENEMIGO', hint: 'UNO de los cinco. No dos, no «un poco de cada uno».', type: 'select', options: ['Complacencia', 'Mediocridad', 'Ausencia de soluciones', 'Efecto espectador', 'Militante de la mediocridad'] },
-            { label: 'CONDUCTA DE AYER', hint: 'Lo que hiciste —o dejaste de hacer— que lo delata. Hecho observable, con hora o contexto. No sentimientos.', rows: 4 },
-            { label: 'CORRECCIÓN HOY', hint: 'Qué haces HOY para neutralizarlo: acción concreta, con hora. Verificable.', rows: 4 }
-          ],
-          checks: [
-            '¿nombró UN enemigo?',
-            '¿la conducta es hecho observable con hora/contexto?',
-            '¿la corrección trae hora y es verificable?'
-          ]
-        },
-        mando: {
-          visible: 'Presencia de mando',
-          pools: {
-            1: [
-              'Tienes que decirle a tu equipo (dos personas) que este mes no hay bono porque no se cumplió la meta. Llevan dos meses esperando ese bono. Escríbelo.',
-              'Un empleado llega tarde por tercera vez esta semana. Tienes que comunicarle que la próxima vez hay consecuencia real. Sin sermón. Escríbelo.'
-            ],
-            2: [
-              'Tienes que anunciar un recorte: uno de los tres puestos se elimina el viernes. Los tres están en la sala. Escríbelo.',
-              'Un cliente importante exige que despidas al empleado que lo atendió mal. El empleado lleva años contigo. Ya tomaste tu decisión: ahora comunícala al equipo. Escríbelo.',
-              'Vas a subir los precios 25% y tu equipo tiene miedo de perder clientes. Comunica el cambio y la razón. Sin pedir permiso. Escríbelo.'
-            ],
-            3: [
-              'Descubriste que tu socio tomó dinero del negocio sin avisar. Vas a comunicarle que la sociedad se termina, en persona, hoy. Escribe lo que le dices.',
-              'El negocio no da más y vas a cerrarlo. Tienes que comunicárselo a tu equipo antes de que se enteren por otro lado. Escríbelo.'
-            ]
-          },
-          fields: [
-            { label: 'COMUNICADO', hint: '3–4 líneas. La decisión dura, dicha de frente: sin disculpas previas, sin pedir permiso, sin abrir negociación.', rows: 7 }
-          ],
-          checks: [
-            '¿tiene 3–4 líneas?',
-            '¿dice la decisión dura sin rodeos ni disculpas previas?',
-            '¿no pide permiso ni abre negociación?'
-          ]
-        }
-      };
-
-      var dayInput = document.getElementById('dayInput');
-      var dayError = document.getElementById('dayError');
-      var startBtn = document.getElementById('startBtn');
-      var testArea = document.getElementById('testArea');
-      var timerRail = document.getElementById('timerRail');
-      var timerEl = document.getElementById('timer');
-      var lockedBanner = document.getElementById('lockedBanner');
-      var formatName = document.getElementById('formatName');
-      var levelName = document.getElementById('levelName');
-      var scenarioTitle = document.getElementById('scenarioTitle');
-      var scenarioText = document.getElementById('scenarioText');
-      var responseFields = document.getElementById('responseFields');
-      var checksEl = document.getElementById('checks');
-      var verdictBox = document.getElementById('verdictBox');
-      var scoreText = document.getElementById('scoreText');
-      var verdictText = document.getElementById('verdictText');
-      var studentName = document.getElementById('studentName');
-      var sendBtn = document.getElementById('sendBtn');
-      var sendStatus = document.getElementById('sendStatus');
-      var packPreview = document.getElementById('packPreview');
-      var copyBtn = document.getElementById('copyBtn');
-      var whatsappBtn = document.getElementById('whatsappBtn');
-      var toast = document.getElementById('toast');
-
-      var active = null;
-      var secondsLeft = 300;
-      var timerId = null;
-      var locked = false;
-
-      function getLevel(day) {
-        if (day <= 21) return 1;
-        if (day <= 56) return 2;
-        return 3;
+    (function(){
+      "use strict";
+      var ENEMIES=["Complacencia","Mediocridad","Ausencia de soluciones","Efecto espectador","Militante de la mediocridad"];
+      var proofs=[
+        {n:1,date:"viernes · 25 sep 2026",format:"Lanning",status:"Publicada",title:"Tienda: ventas −30%, dueño pide publicidad",caseText:"«Las ventas de una tienda de tu barrio cayeron 30% este mes. El dueño te dice: \"Necesito hacer más publicidad\".»",instruction:"Responde en 3 líneas. NO propongas soluciones. Esa es la prueba: la tentación de resolver antes de entender.",lines:[
+          ["HECHO","Un hecho del caso: verificable, está en el texto."],["SUPUESTO","Algo que no sabes pero estás dando por sentado."],["PREGUNTA","Una pregunta cuya respuesta demostraría si tu supuesto es correcto o falso."]],closing:"Un operador no empieza por «¿qué hacemos?». Empieza por «¿qué está pasando?»."},
+        {n:2,date:"sábado · 26 sep 2026",format:"El enemigo de hoy",status:"Publicada",title:"Despacho roto tres semanas",caseText:"«En una empresa, el despacho de mercancía se rompió hace tres semanas. Todos lo ven: clientes reclamando, pedidos acumulándose. Cada mañana alguien dice: \"alguien debería arreglarlo\". Nadie lo arregla.» ¿Qué enemigo está operando?",instruction:"Responde en 2 líneas. En el grupo. Sin literatura.",lines:[
+          ["ENEMIGO","Uno de los cinco enemigos.","enemy"],["EVIDENCIA","Qué parte de la escena lo demuestra. Sin inventar nada."]],closing:"Tres semanas después, nadie nombró al enemigo. Tú sí puedes."},
+        {n:3,date:"domingo · 27 sep 2026",format:"Oposición",status:"Borrador",title:"Ataca tu oferta antes que el mercado",caseText:"Esta mañana construiste tu oferta de 1 página y la viste sangrar en el ataque. La clase cerró con una orden: «NO DEFIENDAS TU OFERTA. SOMÉTELA A PRUEBA.» Saca tu página. Haz tú primero el trabajo que el mercado hará después.",instruction:"Responde en 3 líneas. En el grupo. Sin literatura.",lines:[
+          ["DEFENSA","Tu mejor defensa en una frase: por qué tu oferta merece vivir. Sin hablar de tu esfuerzo ni tus intenciones."],["ATAQUE","Tu pregunta de ataque más dura: exige evidencia, no opinión. Prohibido «yo creo que…»."],["VEREDICTO","SOBREVIVE o SE CAMBIA. Si se cambia, qué cambiarías — una línea."]],closing:"El operador ataca primero lo suyo. El mercado no avisa."},
+        {n:4,date:"lunes · 28 sep 2026",format:"Escenario operativo",status:"Publicada",title:"El cliente pregunta precio antes de decir si le importa",caseText:"«Mostraste tu oferta de 1 página. El primer mensaje del cliente es: \"¿Cuánto cuesta?\" — todavía no te ha dicho si le importa.» Responder el precio de inmediato es defender. Someterlo a prueba es otra cosa.",instruction:"Responde en 3 líneas. En el grupo. Sin literatura.",lines:[
+          ["DECISIÓN","Qué das y qué NO das todavía. Una frase."],["PRIMERA ACCIÓN","Tu primera acción antes de dar precio. Nada de «escríbeme la próxima semana»."],["FRASE EXACTA","La frase que respondes: debe someter la oferta a ¿ME IMPORTA?, ¿TE CREO? o ¿VALE LO QUE CUESTA?, no defenderla."]],closing:"El mercado pregunta el precio cuando todavía no ve el valor. Ahí se pierde o se gana."},
+        {n:5,date:"martes · 29 sep 2026",format:"Lanning",status:"Publicada",title:"«Déjame pensarlo»: separa el hecho del relato",caseText:"«Probaste tu oferta con una persona real. Su respuesta, textual: \"está interesante, déjame pensarlo\". La anotaste tal cual. Pero tu mente ya le agregó un final: \"está interesada, solo necesita tiempo\".» La misión era registrar la objeción textual: palabra por palabra, no tu interpretación.",instruction:"Responde en 3 líneas. NO propongas soluciones. NO interpretes. Separa.",lines:[
+          ["HECHO","Lo que realmente dijo, sin agregar ni quitar nada."],["SUPUESTO","Lo que ya le agregaste tú: no lo sabes, pero lo das por sentado."],["PREGUNTA","Una pregunta cuya respuesta demostraría si tu supuesto es correcto o falso, hecha a esa persona."]],closing:"El operador no interpreta lo que dijo el mercado. Lo registra y lo somete a prueba."},
+        {n:6,date:"miércoles · 30 sep 2026",format:"Oposición",status:"Publicada",title:"Defiende y ataca tu plan de seguimiento",caseText:"Probaste tu oferta con una persona real. Te respondió, textual: «déjame pensarlo». Lo anotaste palabra por palabra. Tu plan: volver a contactarla en unos días. La clase cerró con una orden: «NO DEFIENDAS TU OFERTA. SOMÉTELA A PRUEBA.» Hoy esa orden cae sobre tu plan.",instruction:"Responde en 3 líneas. En el grupo. Sin literatura.",lines:[
+          ["DEFENSA","Por qué tu plan es el correcto. Evidencia, no intención."],["ATAQUE","La pregunta que exige evidencia, no opinión. Prohibido «yo creo que…»."],["VEREDICTO","SOBREVIVE o SE CAMBIA. Si se cambia, la corrección concreta en una línea."]],closing:"El operador no defiende su plan. Lo somete a prueba antes de que el mercado lo haga."},
+        {n:7,date:"jueves · 1 oct 2026",format:"El enemigo de hoy",status:"Publicada",title:"Qué enemigo operó en tu semana",caseText:"«Lunes: probaste tu oferta con una persona real. Martes: separaste el hecho del supuesto. Miércoles: sometiste tu plan de seguimiento a ataque. Hoy es jueves. Y la pregunta que falsifica tu supuesto — la que tu plan corregido exigía — todavía no se la has hecho a esa persona.» Hoy el enemigo no está en el trabajo. Está en el operador.",instruction:"Responde en 3 líneas. En el grupo. Sin literatura.",lines:[
+          ["ENEMIGO","El enemigo que opera en tu semana: uno de los cinco.","enemy"],["EVIDENCIA","Qué hiciste — o dejaste de hacer — que lo demuestra. Hechos observables, no sentimientos."],["ACCIÓN","La acción que lo mata mañana, antes de las 12:00: concreta y verificable."]],closing:"Un operador no tiene prohibido fracasar. Tiene prohibido utilizar el fracaso como sustituto del análisis."},
+        {n:8,date:"lunes · 5 oct 2026",format:"Escenario operativo",status:"Publicada",title:"«Mándame la información y yo te aviso»: seguir o archivar",caseText:"«Ayer le hiciste la pregunta que falsifica el supuesto. Su respuesta, textual: \"está bien, mándame la información y yo te aviso.\"» Tu ego ya lo tradujo: \"le interesa, le mando todo y espero\". La clase dijo: EL CUMPLIDO ES RUIDO. El mercado solo habla en tres pruebas: ¿ME IMPORTA? / ¿TE CREO? / ¿VALE LO QUE CUESTA?",instruction:"Responde en 3 líneas. En el grupo. Sin literatura.",lines:[
+          ["DECISIÓN","¿Lo SIGUES o lo ARCHIVAS? Una palabra, sin rodeos."],["PRUEBA DEL MERCADO","Una de las tres pruebas, aplicada al hecho — no a tu esperanza."],["PRIMERA ACCIÓN","La frase exacta que le mandas mañana, o la línea que lo archiva. Prohibido «le mando la información»."]],closing:"El operador no persigue interés. Opera con evidencia — o archiva sin culpa."},
+        {n:9,date:"martes · 6 oct 2026",format:"Lanning",status:"Publicada",title:"El mapa del ecosistema entra a evidencia",caseText:"«A las 12:00 saliste del Palco con tu mapa del ecosistema dibujado: actores, intermediarios, oportunidades. Ya marcaste con una X la oportunidad que vas a atacar primero.» El principio de las naranjas dice: CUANDO TE ASIGNEN UNA TAREA, ESTUDIA EL ECOSISTEMA QUE LA RODEA. Y la clase 1 escribió la trampa: SI NO PUEDES DEMOSTRAR LA CONSECUENCIA, TODAVÍA TIENES UNA HIPÓTESIS. El mapa no es evidencia. Es un mapa.",instruction:"Responde en 3 líneas. Prohibido proponer soluciones. En el grupo. Sin literatura.",lines:[
+          ["HECHO","Qué observaste esta mañana que otra persona podría verificar — no lo que concluiste."],["SUPUESTO","Qué tiene que ser verdad para que tu X sea una oportunidad real."],["PREGUNTA","La pregunta exacta que falsifica tu supuesto — a quién se la haces y antes de cuándo."]],closing:"Un mapa dibujado no es un problema encontrado. El operador somete el mapa a evidencia — o la X es decoración."},
+        {n:10,date:"viernes · 9 oct 2026",format:"Escenario operativo",status:"Publicada",title:"Apertura de la semana del contacto real",caseText:"«Son las 9:00 AM del lunes. Tu oferta de 1 página sobrevivió al ataque de la sala — y la sala no es el mercado. El principio del contacto dice: NO PIDAS OPINIONES. PROVOCA OBJECIONES. Esta semana tu oferta toca personas reales o sigue siendo una hipótesis. Tienes 3 nombres en la libreta. No hay nada más que preparar.»",instruction:"Responde en 3 líneas. En el grupo. Sin literatura.",lines:[
+          ["A QUIÉN","El nombre real y la razón: qué evidencia observada dice que a esta persona le puede importar."],["FRASE","La frase exacta con la que abres: provoca una objeción, no una opinión. Prohibido «¿qué te parece mi oferta?»."],["REGLA","Qué anotas de esa conversación, y qué cuenta como ruido."]],closing:"La oferta no existe hasta que el mercado la toca. Tócala hoy."},
+        {n:11,date:"miércoles · 7 oct 2026",format:"El enemigo de hoy",status:"Borrador",warning:"BORRADOR. No reutilizar tal cual en el grupo: asume una semana de contacto previa que no ocurrió.",title:"Auditoría del segundo día de contacto",caseText:"«El lunes arrancó la semana del contacto real: tu oferta toca personas reales o sigue siendo una hipótesis. Ayer fue tu segundo día tocando puertas — hoy toca la auditoría, y la clase 1 te dio el instrumento: los cinco enemigos (complacencia, mediocridad, ausencia de soluciones, efecto espectador, militante de la mediocridad). Solo hay tres estados posibles: LA TOCASTE (nombre, hora y objeción registrada), LA EVADISTE (el día \"se complicó\"), o LA HICISTE A MEDIAS (contactaste sin la autopsia previa, pediste opinión en vez de objeción, o mandaste el dossier largo que la prueba #8 prohibió).»",instruction:"Responde en 3 líneas. En el grupo. Sin literatura.",lines:[
+          ["ESTADO","Qué pasó ayer: nombre real y hora del contacto, o la evidencia exacta de la evasión con hora."],["ENEMIGO","Uno de los cinco, delatado por la conducta exacta que lo prueba.","enemy"],["CORRECCIÓN","Qué haces HOY a las 9:30 para neutralizarlo — con nombre, frase exacta y hora."]],closing:"El mercado no registra intenciones. Registra contactos. El enemigo que no nombras hoy te opera mañana."},
+        {n:12,date:"jueves · 8 oct 2026",format:"Oposición",status:"Borrador",warning:"BORRADOR. No reutilizar tal cual en el grupo: asume que las pruebas #10 y #11 fueron publicadas.",title:"Ataca tu conclusión de la semana de contacto",caseText:"«Lunes abriste la semana del contacto real: la oferta toca personas reales o sigue siendo una hipótesis. Martes y miércoles la auditaste. Hoy jueves toca lo más incómodo: tu propia conclusión. A estas alturas tienes una posición — \"mi oferta funciona\", \"el mercado no responde\", \"el problema es mi frase\". El despacho 01 te enseñó el ataque propio: la pregunta más dura que le harías a tu problema si quisieras destruirlo. Defiende tu posición con UN hecho. Después atácala con la lectura rival de la misma evidencia. Si sobrevive, es tuya. Si no, cámbiala hoy.»",instruction:"Responde en 4 líneas. En el grupo. Sin literatura.",lines:[
+          ["MI POSICIÓN","Tu conclusión de la semana del contacto, en una frase."],["MI DEFENSA","El hecho observable que la sostiene — no una sensación ni una inferencia."],["EL ATAQUE","La lectura rival: la pregunta más dura que destruiría tu posición usando la misma evidencia."],["VEREDICTO","Sobrevive / no sobrevive — y qué cambias hoy."]],closing:"La posición que no sobrevive su propio ataque no sobreviviría al mercado. Mejor matarla aquí."},
+        {n:13,date:"viernes · 9 oct 2026",format:"Lanning",status:"Borrador",warning:"BORRADOR. No reutilizar tal cual en el grupo: asume la secuencia #10–#12, que no ocurrió.",title:"La conclusión de la semana entra al Lanning",caseText:"«La semana del contacto real se cierra. Esta semana recogiste objeciones — o recogiste una conclusión sobre lo que pasó. Hoy tu conclusión entra al Lanning. Escríbela como lo que es: un problema. Después pásalo por el tamiz de la clase 2: hecho, supuesto, y la pregunta cuya respuesta destruiría tu supuesto. Si no tienes una pregunta falsificadora, tu conclusión no es análisis: es una inferencia con uniforme de hecho.»",instruction:"Responde en 3 líneas. Prohibido proponer soluciones. En el grupo. Sin literatura.",lines:[
+          ["HECHO","La evidencia observable y verificable de tu semana: objeción textual, nombre, hora. No tu conclusión."],["SUPUESTO","Qué asumes debajo de tu conclusión: la parte invisible que sostiene la historia que te contaste."],["PREGUNTA QUE LO FALSIFIQUE","La pregunta cuya respuesta destruiría tu supuesto. Nada más: ni solución, ni frase nueva, ni plan."]],closing:"Un supuesto sin pregunta falsificadora no es análisis. Es fe."},
+        {n:14,date:"sábado · 10 oct 2026",format:"El enemigo de hoy",status:"Vigente",title:"Cierre de la semana del contacto real",caseText:"«Es sábado. La semana del contacto real cierra hoy. Algunos tocaron personas reales; otros le pidieron opinión a un amigo, recibieron un cumplido y le contaron a la sala que \"el mercado respondió\".»",instruction:"Responde en 3 líneas. En el grupo. Sin literatura.",lines:[
+          ["HECHO","El nombre de UNA persona contactada y su respuesta TEXTUAL — o la línea «no contacté a nadie». Evidencia, no relato."],["ENEMIGO","Cuál de los cinco operó en ti esta semana, y la conducta concreta que lo delata."],["CORRECCIÓN","Qué haces HOY mismo con ese enemigo — nombre, hora, frase."]],closing:"El operador audita su semana con evidencia, no con relato."}
+      ];
+      var TOTAL=300,active=0,remaining=TOTAL,timerId=null,started=false,locked=false,lockWasTimeout=false,selectedVerdict="";
+      var EVALUATION_ENDPOINT="https://script.google.com/macros/s/AKfycbz126TV7AuguNiJc2nHSk8Hx3NsHtWVLDUvEJe8RoPKs4SfVsC48rbZm1hCt_OAcSMkDg/exec?action=submit&payload=";
+      var $=function(id){return document.getElementById(id)};
+      var proofSelect=$("proofSelect"),steps=$("steps"),timerValue=$("timerValue"),timerNote=$("timerNote"),timerBar=$("timerBar"),startBtn=$("startBtn"),finishBtn=$("finishBtn"),lockedBanner=$("lockedBanner"),lockReason=$("lockReason"),resultPanel=$("resultPanel"),completionText=$("completionText"),copyStatus=$("copyStatus"),aiStatus=$("aiStatus"),verdictStatus=$("verdictStatus"),sendVerdictBtn=$("sendVerdictBtn");
+      function clean(v){return(v||"").trim()}
+      function resetVerdict(){selectedVerdict="";Array.prototype.forEach.call(document.querySelectorAll(".verdict-btn"),function(btn){btn.setAttribute("aria-pressed","false")});sendVerdictBtn.disabled=true;verdictStatus.textContent="Selecciona el veredicto que te dio tu IA."}
+      function renderProof(){
+        var p=proofs[active];
+        $("proofNo").textContent="#"+p.n; $("proofFormat").textContent=p.format; $("proofDate").textContent=p.date; $("proofStatus").textContent=p.status; $("proofStatus").classList.toggle("draft",p.status==="Borrador");
+        $("caseTitle").textContent=p.title; $("caseText").textContent=p.caseText; $("caseInstruction").textContent=p.instruction; $("caseWarning").textContent=p.warning||""; $("caseWarning").classList.toggle("visible",Boolean(p.warning)); $("closing").innerHTML=p.closing.replace(/(operador|mercado)/i,"<em>$1</em>");
+        steps.innerHTML=p.lines.map(function(line,i){
+          var input=line[2]==="enemy"?'<select class="line-input response" id="answer'+i+'"><option value="">Selecciona uno</option>'+ENEMIES.map(function(e){return'<option>'+e+'</option>'}).join("")+'</select>':'<textarea class="response" id="answer'+i+'" placeholder="Escribe una sola línea. Sin literatura."></textarea>';
+          return '<article class="step" id="step'+i+'"><div class="step-rail"><div class="step-number">'+String(i+1).padStart(2,"0")+'</div><div class="check-dot">✓</div></div><div class="step-body"><div class="step-title-row"><h3>'+line[0]+'</h3><span class="requirement">Línea '+(i+1)+' de '+p.lines.length+'</span></div><p class="hint">'+line[1]+'</p>'+input+'</div></article>';
+        }).join("");
+        Array.prototype.forEach.call(document.querySelectorAll(".response"),function(el){el.disabled=true;el.addEventListener("input",updateCompletion);el.addEventListener("change",updateCompletion)});
+        resetState(false);
+        $("prevBtn").disabled=active===0; $("nextBtn").disabled=active===proofs.length-1;
       }
-
-      function getFormatKey(day) {
-        var remainder = day % 4;
-        if (remainder === 1) return 'crisis';
-        if (remainder === 2) return 'incompleta';
-        if (remainder === 3) return 'auditoria';
-        return 'mando';
+      function checks(){return proofs[active].lines.map(function(_,i){var el=$("answer"+i);return clean(el.value).length>=(el.tagName==="SELECT"?1:8)})}
+      function updateCompletion(){var c=checks(),count=c.filter(Boolean).length;c.forEach(function(ok,i){$("step"+i).classList.toggle("complete",ok)});completionText.innerHTML="<b>"+count+" de "+c.length+"</b> líneas con forma completa.";finishBtn.disabled=!started||locked||count<c.length}
+      function setDisabled(value){Array.prototype.forEach.call(document.querySelectorAll(".response"),function(el){el.disabled=value})}
+      function renderTimer(){var m=Math.floor(remaining/60),s=remaining%60;timerValue.textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");timerBar.style.transform="scaleX("+Math.max(0,remaining/TOTAL)+")";if(remaining<=60&&remaining>0){timerValue.style.color="var(--danger)";timerNote.textContent="Último minuto. Cierra la forma."}else if(started&&!locked){timerValue.style.color="var(--ink)";timerNote.textContent="El reloj corre. Decide y escribe."}}
+      function tick(){remaining--;renderTimer();if(remaining<=0){clearInterval(timerId);timerId=null;lockTest(true)}}
+      function startTimer(){if(started||locked)return;started=true;setDisabled(false);startBtn.disabled=true;startBtn.textContent="Prueba en curso";timerNote.textContent="El reloj corre. Decide y escribe.";var first=document.querySelector(".response");if(first)first.focus();timerId=setInterval(tick,1000);updateCompletion()}
+      function lockTest(timeout){if(locked)return;locked=true;lockWasTimeout=timeout;if(timerId)clearInterval(timerId);timerId=null;setDisabled(true);finishBtn.disabled=true;lockedBanner.classList.add("visible");lockReason.textContent=timeout?"El cronómetro llegó a cero.":"Entregaste antes del límite.";startBtn.disabled=true;startBtn.textContent="Prueba cerrada";showResults()}
+      function showResults(){var p=proofs[active],c=checks(),count=c.filter(Boolean).length;$("score").textContent=count+"/"+c.length;$("resultTitle").textContent=count===c.length?"FORMA COMPLETA":"FORMA INCOMPLETA";$("resultMessage").textContent=count===c.length?"Todas las líneas contienen la estructura exigida.":"Faltan líneas. Esta revisión no evalúa si tu lectura es correcta.";$("checkList").innerHTML=p.lines.map(function(line,i){return'<div class="check-item '+(c[i]?"pass":"fail")+'"><strong>'+(c[i]?"✓ ":"× ")+line[0]+'</strong><span>'+(c[i]?"Línea presente.":"Falta completar esta línea.")+'</span></div>'}).join("");resultPanel.classList.add("visible");$("editBtn").style.display=lockWasTimeout?"none":"inline-block";resultPanel.scrollIntoView({behavior:"smooth",block:"start"})}
+      function unlock(){if(lockWasTimeout)return;locked=false;lockedBanner.classList.remove("visible");resultPanel.classList.remove("visible");setDisabled(false);startBtn.textContent="Prueba en curso";timerNote.textContent="El reloj sigue corriendo. Corrige y cierra.";if(remaining>0)timerId=setInterval(tick,1000);updateCompletion()}
+      function resetState(scroll){if(timerId)clearInterval(timerId);timerId=null;remaining=TOTAL;started=false;locked=false;lockWasTimeout=false;Array.prototype.forEach.call(document.querySelectorAll(".response"),function(el){el.value="";el.disabled=true});startBtn.disabled=false;startBtn.textContent="Iniciar prueba";lockedBanner.classList.remove("visible");resultPanel.classList.remove("visible");copyStatus.textContent="";aiStatus.textContent="";resetVerdict();timerValue.style.color="var(--ink)";timerNote.textContent="El reloj comienza cuando tú lo ordenes.";renderTimer();updateCompletion();if(scroll)window.scrollTo({top:0,behavior:"smooth"})}
+      function choose(index){active=Math.max(0,Math.min(proofs.length-1,index));proofSelect.value=String(active);renderProof();window.scrollTo({top:0,behavior:"smooth"})}
+      function responseText(){var p=proofs[active];return"LA FORJA — PRUEBA DIARIA #"+p.n+"\n"+p.format.toUpperCase()+"\n\n"+p.lines.map(function(line,i){return(i+1)+". "+line[0]+" — "+(clean($("answer"+i).value)||"sin respuesta")}).join("\n\n")}
+      function aiPackText(){
+        var p=proofs[active];
+        var answers=p.lines.map(function(line,i){return(i+1)+". "+line[0]+": "+(clean($("answer"+i).value)||"SIN RESPUESTA")}).join("\n");
+        var rubric=p.lines.map(function(line,i){return(i+1)+". "+line[0]+" — "+line[1]}).join("\n");
+        return "LA FORJA — PACK DE EVALUACIÓN\n\n"+
+          "PRUEBA\nNúmero: #"+p.n+"\nFormato: "+p.format+"\nTítulo: "+p.title+"\nCaso: "+p.caseText+"\nConsigna: "+p.instruction+"\n\n"+
+          "RESPUESTAS DEL ALUMNO\n"+answers+"\n\n"+
+          "PROMPT PARA EL EVALUADOR\n"+
+          "Eres el EVALUADOR de La Forja. Cero adulación, cero protección del ego. Evalúa con esta rúbrica binaria:\n"+rubric+"\n\n"+
+          "Califica cada criterio como CUMPLE o NO CUMPLE. Regla de veredicto: APROBADO si todos cumplen; A MEDIAS si falla exactamente uno; REPROBADO si fallan dos o más.\n\n"+
+          "Devuelve:\n"+
+          "VEREDICTO: APROBADO/A MEDIAS/REPROBADO.\n"+
+          "FALLO: dónde falló, citando su frase exacta.\n"+
+          "EL OPERADOR HABRÍA: la acción correcta, concreta.\n"+
+          "CONSEJOS PARA MEJORAR: 3 consejos específicos y accionables atados a sus respuestas, no genéricos.\n"+
+          "ORDEN PARA MAÑANA: una sola acción.";
       }
-
-      function levelStart(level) {
-        return level === 1 ? 1 : (level === 2 ? 22 : 57);
-      }
-
-      function scenarioFor(day, key, level) {
-        var format = banks[key];
-        if (format.fixed) return format.fixed;
-        var pool = format.pools[level];
-        var start = levelStart(level);
-        var occurrence = 0;
-        for (var i = start; i <= day; i += 1) {
-          if (getFormatKey(i) === key) occurrence += 1;
-        }
-        return pool[(occurrence - 1) % pool.length];
-      }
-
-      function safeId(label, index) {
-        return 'answer-' + index + '-' + label.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-');
-      }
-
-      function renderFields(format) {
-        responseFields.innerHTML = '';
-        format.fields.forEach(function (field, index) {
-          var wrap = document.createElement('div');
-          wrap.className = 'response-field';
-          var id = safeId(field.label, index);
-          var label = document.createElement('label');
-          label.setAttribute('for', id);
-          label.textContent = field.label;
-          var hint = document.createElement('span');
-          hint.className = 'hint';
-          hint.id = id + '-hint';
-          hint.textContent = field.hint;
-          var control;
-          if (field.type === 'select') {
-            control = document.createElement('select');
-            var empty = document.createElement('option');
-            empty.value = '';
-            empty.textContent = 'Selecciona uno';
-            control.appendChild(empty);
-            field.options.forEach(function (optionText) {
-              var option = document.createElement('option');
-              option.value = optionText;
-              option.textContent = optionText;
-              control.appendChild(option);
-            });
-          } else {
-            control = document.createElement('textarea');
-            control.rows = field.rows || 4;
-            if ((field.rows || 4) >= 7) control.className = 'long';
-          }
-          control.id = id;
-          control.setAttribute('aria-describedby', hint.id);
-          control.setAttribute('data-answer-field', field.label);
-          control.addEventListener('input', updatePack);
-          control.addEventListener('change', updatePack);
-          wrap.appendChild(label);
-          wrap.appendChild(hint);
-          wrap.appendChild(control);
-          responseFields.appendChild(wrap);
-        });
-      }
-
-      function renderChecks(format) {
-        checksEl.innerHTML = '';
-        format.checks.forEach(function (text, index) {
-          var label = document.createElement('label');
-          label.className = 'check-row';
-          var input = document.createElement('input');
-          input.type = 'checkbox';
-          input.setAttribute('data-check', String(index));
-          input.addEventListener('change', function () {
-            updateVerdict();
-            updatePack();
-          });
-          var span = document.createElement('span');
-          span.textContent = text;
-          label.appendChild(input);
-          label.appendChild(span);
-          checksEl.appendChild(label);
-        });
-      }
-
-      function updateTimerDisplay() {
-        var minutes = Math.floor(secondsLeft / 60);
-        var seconds = secondsLeft % 60;
-        timerEl.textContent = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
-        timerRail.classList.toggle('warning', secondsLeft <= 60 && secondsLeft > 0);
-        timerRail.classList.toggle('locked', secondsLeft === 0);
-      }
-
-      function setLocked(value) {
-        locked = value;
-        lockedBanner.hidden = !value;
-        var controls = document.querySelectorAll('#testShell textarea, #testShell select, #testShell input, .timed-control');
-        controls.forEach(function (control) { control.disabled = value; });
-        if (value) {
-          sendStatus.textContent = 'El tiempo terminó. Esta entrega no puede enviarse.';
-          document.getElementById('testArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }
-
-      function startTimer() {
-        if (timerId) window.clearInterval(timerId);
-        secondsLeft = 300;
-        setLocked(false);
-        updateTimerDisplay();
-        timerId = window.setInterval(function () {
-          secondsLeft -= 1;
-          updateTimerDisplay();
-          if (secondsLeft <= 0) {
-            window.clearInterval(timerId);
-            timerId = null;
-            setLocked(true);
-          }
-        }, 1000);
-      }
-
-      function startTest() {
-        var day = Number(dayInput.value);
-        if (!Number.isInteger(day) || day < 1 || day > 90) {
-          dayError.textContent = 'Escribe un día entero del 1 al 90.';
-          dayInput.focus();
-          return;
-        }
-        dayError.textContent = '';
-        var key = getFormatKey(day);
-        var level = getLevel(day);
-        var format = banks[key];
-        active = {
-          day: day,
-          key: key,
-          level: level,
-          format: format,
-          title: 'Día ' + day + ' — ' + format.visible,
-          scenario: scenarioFor(day, key, level)
-        };
-        formatName.textContent = format.visible;
-        levelName.textContent = 'Día ' + day + ' · Nivel ' + level;
-        scenarioTitle.textContent = active.title;
-        scenarioText.textContent = active.scenario;
-        renderFields(format);
-        renderChecks(format);
-        document.querySelectorAll('[data-eval-field]').forEach(function (field) { field.value = ''; });
-        studentName.value = '';
-        sendStatus.textContent = '';
-        updateVerdict();
-        updatePack();
-        testArea.hidden = false;
-        startBtn.textContent = 'Reiniciar / cambiar día';
-        startTimer();
-        window.setTimeout(function () {
-          testArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          var first = responseFields.querySelector('textarea, select');
-          if (first) first.focus({ preventScroll: true });
-        }, 80);
-      }
-
-      function countChecks() {
-        return document.querySelectorAll('#checks input:checked').length;
-      }
-
-      function getVerdict() {
-        var score = countChecks();
-        if (score === 3) return 'APROBADO';
-        if (score === 2) return 'A MEDIAS';
-        return 'REPROBADO';
-      }
-
-      function updateVerdict() {
-        var score = countChecks();
-        var verdict = getVerdict();
-        scoreText.textContent = score + '/3';
-        verdictText.textContent = verdict;
-        verdictBox.classList.toggle('pass', score === 3);
-        verdictBox.classList.toggle('mid', score === 2);
-      }
-
-      function collectResponses() {
-        var responses = {};
-        document.querySelectorAll('[data-answer-field]').forEach(function (field) {
-          responses[field.getAttribute('data-answer-field')] = field.value;
-        });
-        document.querySelectorAll('[data-eval-field]').forEach(function (field) {
-          responses[field.getAttribute('data-eval-field')] = field.value;
-        });
-        return responses;
-      }
-
-      function collectPayload() {
-        return {
-          alumno: studentName.value.trim() || 'Anónimo',
-          modo: 'evaluador-diario',
-          prueba_id: 'dia-' + active.day,
-          formato: active.format.visible,
-          formato_clave: active.key,
-          titulo: active.title,
-          respuestas: collectResponses()
-        };
-      }
-
-      function makePack() {
-        if (!active) return '';
-        var responses = collectResponses();
-        var lines = [
-          'EVALUADOR DIARIO DEL OPERADOR',
-          active.title,
-          'Nivel ' + active.level,
-          '',
-          'ESCENARIO',
-          active.scenario,
-          '',
-          'RESPUESTAS'
-        ];
-        Object.keys(responses).forEach(function (key) {
-          lines.push(key + ': ' + (responses[key] || '—'));
-        });
-        lines.push('', 'VEREDICTO MANUAL: ' + countChecks() + '/3 — ' + getVerdict());
-        return lines.join('\n');
-      }
-
-      function updatePack() {
-        if (active) packPreview.textContent = makePack();
-      }
-
-      function validateForSend() {
-        var missing = [];
-        document.querySelectorAll('[data-answer-field]').forEach(function (field) {
-          if (!String(field.value || '').trim()) missing.push(field.getAttribute('data-answer-field'));
-        });
-        if (missing.length) {
-          sendStatus.textContent = 'Falta responder: ' + missing.join(', ') + '.';
-          var first = document.querySelector('[data-answer-field]');
-          if (first && !String(first.value || '').trim()) first.focus();
-          return false;
-        }
-        sendStatus.textContent = '';
-        return true;
-      }
-
-      function sendEvaluation() {
-        if (!active || locked || !validateForSend()) return;
-        var payload = collectPayload();
-        var target = SUBMIT_BASE + encodeURIComponent(JSON.stringify(payload));
-        var opened = window.open(target, '_blank', 'noopener,noreferrer');
-        if (!opened) {
-          sendStatus.textContent = 'El navegador bloqueó la pestaña. Permite ventanas emergentes y vuelve a tocar el botón.';
-        } else {
-          sendStatus.textContent = 'Evaluación abierta en una pestaña nueva.';
-        }
-      }
-
-      function showToast(message) {
-        toast.textContent = message;
-        toast.hidden = false;
-        window.setTimeout(function () { toast.hidden = true; }, 2200);
-      }
-
-      function copyPack() {
-        if (!active || locked) return;
-        var text = makePack();
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).then(function () {
-            showToast('Pack copiado.');
-          }).catch(function () {
-            fallbackCopy(text);
-          });
-        } else {
-          fallbackCopy(text);
-        }
-      }
-
-      function fallbackCopy(text) {
-        var area = document.createElement('textarea');
-        area.value = text;
-        area.setAttribute('readonly', '');
-        area.style.position = 'fixed';
-        area.style.opacity = '0';
-        document.body.appendChild(area);
-        area.select();
-        try {
-          document.execCommand('copy');
-          showToast('Pack copiado.');
-        } catch (error) {
-          showToast('No se pudo copiar. Selecciona el texto manualmente.');
-        }
-        document.body.removeChild(area);
-      }
-
-      function openWhatsApp() {
-        if (!active || locked) return;
-        var target = WHATSAPP_BASE + encodeURIComponent(makePack());
-        window.open(target, '_blank', 'noopener,noreferrer');
-      }
-
-      startBtn.addEventListener('click', startTest);
-      dayInput.addEventListener('keydown', function (event) {
-        if (event.key === 'Enter') startTest();
-      });
-      sendBtn.addEventListener('click', sendEvaluation);
-      copyBtn.addEventListener('click', copyPack);
-      whatsappBtn.addEventListener('click', openWhatsApp);
-      studentName.addEventListener('input', updatePack);
-      document.querySelectorAll('[data-eval-field]').forEach(function (field) { field.addEventListener('input', updatePack); });
+      function openEvaluation(payload){var link=document.createElement("a");link.href=EVALUATION_ENDPOINT+encodeURIComponent(JSON.stringify(payload));link.target="_blank";link.rel="noopener noreferrer";document.body.appendChild(link);link.click();document.body.removeChild(link)}
+      function proofEvaluationPayload(){var p=proofs[active],responses={};p.lines.forEach(function(line,i){responses[line[0]]=clean($("answer"+i).value)});return{alumno:clean($("studentName").value)||"Anónimo",modo:"prueba",prueba_id:"test-"+p.n,formato:p.format,formato_clave:"prueba",titulo:p.title,respuestas:responses}}
+      function sendEvaluation(){openEvaluation(proofEvaluationPayload())}
+      function copyText(text,statusEl,successMessage){function done(){statusEl.textContent=successMessage;setTimeout(function(){statusEl.textContent=""},3500)}function fallback(){var a=document.createElement("textarea");a.value=text;a.setAttribute("readonly","");a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();try{document.execCommand("copy");done()}catch(e){statusEl.textContent="No se pudo copiar. Selecciona el texto manualmente."}document.body.removeChild(a)}if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(text).then(done).catch(fallback);else fallback()}
+      function copy(){copyText(responseText(),copyStatus,"Copiado. Pégalo en el grupo.")}
+      function copyAiPack(){copyText(aiPackText(),aiStatus,"Pack copiado. Pégalo en ChatGPT o Gemini.")}
+      function chooseVerdict(value){selectedVerdict=value;Array.prototype.forEach.call(document.querySelectorAll(".verdict-btn"),function(btn){btn.setAttribute("aria-pressed",String(btn.getAttribute("data-verdict")===value))});sendVerdictBtn.disabled=false;verdictStatus.textContent="Listo para enviar: "+value+"."}
+      function shortAnswer(index){var el=$("answer"+index);var text=el?clean(el.value):"";text=(text||"sin respuesta").replace(/\s+/g," ");return text.slice(0,120)}
+      function sendVerdict(){if(!selectedVerdict)return;var p=proofs[active];var message="LA FORJA — VEREDICTO | Prueba #"+p.n+" ("+p.format+") | Veredicto de mi IA: "+selectedVerdict+" | L1: "+shortAnswer(0)+" | L2: "+shortAnswer(1)+" | L3: "+shortAnswer(2);var link=document.createElement("a");link.href="https://wa.me/529994931090?text="+encodeURIComponent(message);link.target="_blank";link.rel="noopener noreferrer";document.body.appendChild(link);link.click();document.body.removeChild(link);verdictStatus.textContent="WhatsApp abierto con el veredicto preparado."}
+      proofs.forEach(function(p,i){var o=document.createElement("option");o.value=String(i);o.textContent="#"+p.n+" · "+p.title;proofSelect.appendChild(o)});
+      proofSelect.addEventListener("change",function(){choose(Number(this.value))});$("prevBtn").addEventListener("click",function(){choose(active-1)});$("nextBtn").addEventListener("click",function(){choose(active+1)});startBtn.addEventListener("click",startTimer);$("resetBtn").addEventListener("click",function(){resetState(true)});finishBtn.addEventListener("click",function(){lockTest(false)});$("editBtn").addEventListener("click",unlock);$("copyBtn").addEventListener("click",copy);$("sendEvaluationBtn").addEventListener("click",sendEvaluation);$("copyAiBtn").addEventListener("click",copyAiPack);Array.prototype.forEach.call(document.querySelectorAll("[data-verdict]"),function(btn){btn.addEventListener("click",function(){chooseVerdict(this.getAttribute("data-verdict"))})});sendVerdictBtn.addEventListener("click",sendVerdict);
+      renderProof();
     }());
   </script>
 </body>
